@@ -1,3 +1,24 @@
+# Steg för att få igång applikationen 
+
+Installerade dotenv
+Tog ut en API-nyckel från trafikverket
+skapade en .env fil innehållande TRAFIKVERKET_API_KEY='din nyckel'
+Lade till require('dotenv').config(); i de filer som använder APIet.
+
+Notering: Detta tog oss fram till "hello world" och routarna. 
+
+Installerade node live-server för att köra frontenden. (testade först php, men fick det inte att funka.)
+
+Körde sedan backend och frontend i två olika terminaler på port 1337 respektive 9000.
+live-server --port=9000 - front end till 9000
+node app.js - back end till 1337
+
+Installerade cors middleware.
+
+Applikationen tycks nu fungera. Jag kan se försenade tåg, det är grafiskt representerat med markörer, jag kan klicka på en försenad avgång och komma till en sida förberedd för att kunna starta ärenden. 
+
+Bedömer att vi är "framme" och att applikationen fungerar så långt det går.
+
 # npm audit report
 
 # Problem 1
