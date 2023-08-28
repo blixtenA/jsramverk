@@ -1,8 +1,8 @@
 const fetch = require('node-fetch')
 const EventSource = require('eventsource')
+require('dotenv').config();
 
 async function fetchTrainPositions(io) {
-
 
     const query = `<REQUEST>
     <LOGIN authenticationkey="${process.env.TRAFIKVERKET_API_KEY}" />
