@@ -10,7 +10,7 @@ Notering: Detta tog oss fram till "hello world" och routarna.
 Installerade node live-server för att köra frontenden. (testade först php, men fick det inte att funka.)
 
 Körde sedan backend och frontend i två olika terminaler på port 1337 respektive 9000.
-live-server --port=9000 - front end till 9000
+live-server --port=9000 - front end till 9000 eller python3 -m htttp.server 9000
 node app.js - back end till 1337
 
 Installerade cors middleware.
