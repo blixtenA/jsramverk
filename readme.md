@@ -9,6 +9,8 @@ Notering: Detta tog oss fram till "hello world" och routarna.
 
 Installerade node live-server för att köra frontenden. (testade först php, men fick det inte att funka.)
 
+python3 -m htttp.server 9000 fungerade dock fint direkt.
+
 Körde sedan backend och frontend i två olika terminaler på port 1337 respektive 9000.
 live-server --port=9000 - front end till 9000 eller python3 -m htttp.server 9000
 node app.js - back end till 1337
@@ -104,3 +106,21 @@ To address all issues, run:
 
 # Lösning
 npm audit fix löste samtliga sårbarheter.
+
+# Val av Frontend ramverk
+
+Efter en del tittande kom vi fram till foljande:
+
+Vue är ett utmärkt val för vårt mindre projekt av flera anledningar:
+
+Enkel inlärning: Vue har en lättförståelig och ren syntax som gör det enkelt för teammedlemmar att komma igång snabbt, även om de är nya inom ramverket.
+
+Små projektstorlekar: För mindre projekt är Vue idealiskt eftersom det erbjuder flexibilitet och kraft utan att lägga till onödig komplexitet. Det hjälper oss att undvika överdriven kod och snabbar upp utvecklingen.
+
+Aktiv gemenskap: Trots att Vue inte är lika stort som Angular eller React har det fortfarande en aktiv och växande community. Det innebär att vi kan hitta stöd, resurser och tredjepartsbibliotek när vi behöver dem.
+
+Utmärkt dokumentation: Vue har känd för sin högkvalitativa och lättillgängliga dokumentation. Detta gör det enkelt för vårt team att lära sig, felsöka och optimera vår kod.
+
+Integration: Vue är flexibelt och kan integreras i befintliga projekt och infrastrukturer. Detta kan vara en fördel om vi redan har investerat i vissa teknologier och bara vill använda Vue för en del av vårt projekt.
+
+Sammanfattningsvis är Vue ett smart val för mindre projekt där vi behöver effektivitet, enkelhet och snabb inlärningskurva. Dess balans mellan funktionalitet och tydlighet gör det till ett kraftfullt alternativ för att bygga högkvalitativa användargränssnitt på kort tid.
