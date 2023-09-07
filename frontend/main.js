@@ -162,8 +162,6 @@ function renderTicketView(item) {
             });
         });
 
-
-
     fetch("http://localhost:1337/codes")
         .then((response) => response.json())
         .then((result) => {
