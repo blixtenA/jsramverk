@@ -166,10 +166,3 @@ npm install mongodb --save
 
 installerade kompononenter till backend
 
-npm install node-html-parser chai mocha mongodb chai-http --save-dev
-
-installerade test lompononenter till frontend
-
-npm install selenium-webdriver
-
-\*Obs For att testa frontend ska en starta appen via servarna innan.
