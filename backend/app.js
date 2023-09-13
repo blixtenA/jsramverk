@@ -45,3 +45,4 @@ httpServer.listen(port, () => {
 })
 
 fetchTrainPositions(io);
+
