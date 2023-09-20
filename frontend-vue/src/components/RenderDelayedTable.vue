@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="delayed-trains" ref="delayedTrains" id="delayed-trains">
     <div v-for="(item, index) in data" :key="index" @click="openTicketView(item)">
 
       <!-- Display train information -->
@@ -15,9 +15,9 @@
     </div>
 
     <!-- Full-page modal -->
-    <div v-if="showTicketView" class="modal">
+    <div v-if="showTicketView" class="modal" id="train-modal">
       <div class="modal-content">
-        <button @click="closeTicketView">Close Ticket</button>
+        <button @click="closeTicketView" id="back">Close Ticket</button>
         <h1>Nytt ärende #{{ newTicketId }}</h1>
         <h3 v-if="selectedItem && selectedItem.FromLocation">
           Tåg från {{ selectedItem.FromLocation[0].LocationName }} till {{ selectedItem.ToLocation[0].LocationName }}. Just nu i {{ selectedItem.LocationSignature }}.

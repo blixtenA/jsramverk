@@ -2,7 +2,7 @@
     <div class="container">
       <div class="delayed">
         <h1>Försenade tåg</h1>
-        <div class="delayed-trains" ref="delayedTrains"></div>
+        <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
         <render-delayed-table :data="delayedData"></render-delayed-table>
       </div>
       <div class="map" ref="map"></div>
@@ -27,7 +27,7 @@
     },
     methods: {
       renderMainView() {
-        const container = this.$refs.delayedTrains;
+        const container = this.$refs.mainDelayedTrains;
         container.innerHTML = '';
   
         const map = L.map(this.$refs.map).setView([62.173276, 14.942265], 5);
