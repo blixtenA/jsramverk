@@ -1,4 +1,3 @@
-
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const { Options } = require('selenium-webdriver/chrome');
@@ -31,8 +30,6 @@ const browser = new Builder()
   .build();
 
 console.log('WebDriver instance created');
-
-console.log("WebDriver instance created");
 
 const targetURL = "http://localhost:9000";
 
@@ -110,25 +107,31 @@ it("Test go to Home", function(done) {
     done();
 });
 
-/* Ticket view specific tests */
+/* Ticket view test, modal verson */
 it('should open the ticket view when clicking a delayed item', async function () {
+
+    const { until } = require('selenium-webdriver');
+
     // Simulate clicking the first delay (should be at least one, because Sweden)
-    const firstDelayedItem = await browser.findElement(By.css('.train-number'));
+    await browser.wait(until.elementLocated(By.xpath('//div[@class="train-number"]')), 10000);
+
+    const firstDelayedItem = await browser.findElement(By.xpath('//div[@class="train-number"]'));
 
     // Execute a click action on the first delayed item
     await browser.actions().click(firstDelayedItem).perform();
 
-    // Wait for the ticket view container to be visible
-    const ticketViewContainer = await browser.findElement(By.id('container'));
-    await browser.wait(until.elementIsVisible(ticketViewContainer), 20000);
+    // Wait for the modal to be visible
+    const modal = await browser.findElement(By.id('train-modal'));
+    await browser.wait(until.elementIsVisible(modal), 20000);
 
-    const ticketTitle = await browser.findElement(By.css('h1'));
-    const backButton = await browser.findElement(By.id('back'));
+    const ticketTitle = await modal.findElement(By.css('h1'));
+    const backButton = await modal.findElement(By.id('back'));
 
     // asserts
     assert.isTrue(await ticketTitle.isDisplayed());
     assert.isTrue(await backButton.isDisplayed());
 });
+
   
   after(async function () {
     console.log('Quitting browser');
