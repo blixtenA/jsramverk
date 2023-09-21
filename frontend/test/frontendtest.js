@@ -10,7 +10,7 @@ require('dotenv').config();
 
 // Get ChromeDriver path and port from environment variables
 const chromeDriverPath = process.env.CHROME_DRIVER_PATH;
-const chromeDriverPort = parseInt(process.env.CHROME_DRIVER_PORT || 9000);
+const chromeDriverPort = parseInt(process.env.CHROME_DRIVER_PORT || 9002);
 
 console.log(`ChromeDriver path: ${chromeDriverPath}`);
 console.log(`ChromeDriver port: ${chromeDriverPort}`);

@@ -10,8 +10,6 @@
           {{ item.FromLocation ? item.FromLocation[0].LocationName + " -> " : "" }}
           {{ item.ToLocation ? item.ToLocation[0].LocationName : "" }}
         </div>
-      </div>
-      <div class="delay">{{ outputDelay(item) }}</div>
     </div>
 
     <!-- Full-page modal -->
@@ -37,6 +35,7 @@
 
 <script>
 export default {
+
   data() {
     return {
       showTicketView: false, // Visa TicketView
@@ -54,13 +53,24 @@ export default {
     closeTicketView() {
       this.showTicketView = false;
     },
-    outputDelay(item) {
-      const advertised = new Date(item.AdvertisedTimeAtLocation);
-      const estimated = new Date(item.EstimatedTimeAtLocation);
-      const diff = Math.abs(estimated - advertised);
-      return Math.floor(diff / (1000 * 60)) + ' minuter';
+    props: {
+        data: Array,
     },
-  },
+    methods: {
+        openTicketView(item) {
+            this.selectedItem = item;
+            this.showTicketView = true;
+        },
+        closeTicketView() {
+            this.showTicketView = false;
+        },
+        outputDelay(item) {
+            const advertised = new Date(item.AdvertisedTimeAtLocation);
+            const estimated = new Date(item.EstimatedTimeAtLocation);
+            const diff = Math.abs(estimated - advertised);
+            return Math.floor(diff / (1000 * 60)) + " minuter";
+        },
+    },
 };
 </script>
 

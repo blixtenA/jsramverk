@@ -1,3 +1,4 @@
+
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const { Options } = require('selenium-webdriver/chrome');
@@ -34,7 +35,6 @@ console.log('WebDriver instance created');
 const targetURL = "http://localhost:9000";
 
 describe("Test Suite", function () {
-
     function goToNavLink(target) {
         browser.findElement(By.linkText(target)).then(function(element) {
             element.click();
