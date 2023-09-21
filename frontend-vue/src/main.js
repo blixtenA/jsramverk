@@ -4,11 +4,11 @@ import { createRouter, createWebHistory } from "vue-router";
 import RenderMainView from "./components/RenderMainView.vue";
 
 const routes = [
-    {
-        path: "/",
-        name: "main",
-        component: RenderMainView,
-    },
+  {
+    path: "/",
+    name: "main",
+    component: RenderMainView,
+  },
 ];
 
 const router = createRouter({
