@@ -9,6 +9,7 @@
     "scripts": {
         "test": "mocha frontend/test/frontendtest.js"
     },
+
     "dependencies": {
         "dotenv": "^16.3.1",
         "selenium-webdriver": "^4.12.0"

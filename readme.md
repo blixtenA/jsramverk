@@ -156,6 +156,13 @@ To access MongoDB, open a terminal and run:
 
 mongo
 
+skapa databasen och collection tickets
+
+> use tickets
+> switched to db tickets
+> db.createCollection("tickets")
+> { "ok" : 1 }
+
 # implementera mongoDb med node samt skypa ny modiferad version av databas.js
 
 installera inom backend mappen:
