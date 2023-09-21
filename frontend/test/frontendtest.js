@@ -1,3 +1,4 @@
+
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const { Options } = require('selenium-webdriver/chrome');
@@ -30,6 +31,8 @@ const browser = new Builder()
   .build();
 
 console.log('WebDriver instance created');
+
+console.log("WebDriver instance created");
 
 const targetURL = "http://localhost:9000";
 
