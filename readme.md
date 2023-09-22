@@ -152,20 +152,28 @@ Verify that MongoDB is running with:
 
 sudo systemctl status mongod
 
-To access MongoDB, open a terminal and run:
+Se om MongoDB fungerar, se terminal och run:
 
 mongo
 
-skapa databasen och collection tickets
+Mest viktiga till detta projekt att koppla sig mot databsen skapad via mongodb atlas:
 
-> use tickets
-> switched to db tickets
-> db.createCollection("tickets")
-> { "ok" : 1 }
+const { MongoClient } = require("mongodb");
+
+const database = {
+openDb: async function openDb() {
+const uri =
+"mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"; // Replace with your MongoDB Atlas URI
+
+        const client = new MongoClient(uri);
+
+kopplar upp sig till databasen
 
 # implementera mongoDb med node samt skypa ny modiferad version av databas.js
 
-installera inom backend mappen:
+installera inom backend-mongodb mappen:
+
+npm install
 
 npm install mongodb --save
 
@@ -173,11 +181,11 @@ npm install mongodb --save
 
 installerade kompononenter till backend
 
-npm install node-html-parser chai mocha mongodb chai-http --save-dev
+npm install node-html-parser chai mocha mongodb chai-http selenium-webdriver --save-dev
 
-installerade test lompononenter till frontend
+installerade test kompononenter till frontend
 
-npm install selenium-webdriver
+npm install node-html-parser chai mocha mongodb chai-http selenium-webdriver --save-dev
 
 \*Obs For att testa frontend ska en starta appen via servarna innan.
 

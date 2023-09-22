@@ -3,11 +3,7 @@ const { MongoClient } = require("mongodb");
 const tickets = {
     getTickets: async function getTickets(req, res) {
         const client = new MongoClient(
-            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority",
-            {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-            }
+            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"
         );
 
         try {
@@ -26,11 +22,7 @@ const tickets = {
 
     createTicket: async function createTicket(req, res) {
         const client = new MongoClient(
-            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority",
-            {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-            }
+            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"
         );
 
         try {
