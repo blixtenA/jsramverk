@@ -5,7 +5,7 @@ process.env.NODE_ENV = "test";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const HTMLparser = require("node-html-parser");
-const app = require("../../backend/app.js"); // Import the 'app' variable from your main application file
+const app = require("../../backend-mongodb/app.js"); // Import the 'app' variable from your main application file
 const expect = chai.expect;
 
 chai.should();
@@ -63,8 +63,6 @@ describe("Server Connection Behavior", () => {
                 done();
             });
     });
-
-    // Add more test cases to cover other routes and behaviors of your application
 
     // Add more test cases to cover other routes and behaviors of your application
 
