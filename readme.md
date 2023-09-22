@@ -152,28 +152,13 @@ Verify that MongoDB is running with:
 
 sudo systemctl status mongod
 
-Se om MongoDB fungerar, se terminal och run:
+To access MongoDB, open a terminal and run:
 
 mongo
 
-Mest viktiga till detta projekt att koppla sig mot databsen skapad via mongodb atlas:
-
-const { MongoClient } = require("mongodb");
-
-const database = {
-openDb: async function openDb() {
-const uri =
-"mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"; // Replace with your MongoDB Atlas URI
-
-        const client = new MongoClient(uri);
-
-kopplar upp sig till databasen
-
 # implementera mongoDb med node samt skypa ny modiferad version av databas.js
 
-installera inom backend-mongodb mappen:
-
-npm install
+installera inom backend mappen:
 
 npm install mongodb --save
 
@@ -181,73 +166,10 @@ npm install mongodb --save
 
 installerade kompononenter till backend
 
-npm install node-html-parser chai mocha mongodb chai-http selenium-webdriver --save-dev
+npm install node-html-parser chai mocha mongodb chai-http --save-dev
 
-installerade test kompononenter till frontend
+installerade test lompononenter till frontend
 
-npm install node-html-parser chai mocha mongodb chai-http selenium-webdriver --save-dev
+npm install selenium-webdriver
 
 \*Obs For att testa frontend ska en starta appen via servarna innan.
-
-# Implementera tester backend
-
-Miljöinställning:
-
-Koden sätter miljövariabeln NODE_ENV till "test" för att ange att den körs i en testmiljö.
-
-Testbibliotek:
-
-Det använder testbibliotek som Chai och Chai-HTTP för att utföra HTTP-förfrågningstester och assertioner.
-
-Testsvit:
-
-Koden definierar en testsuite med namnet "Serveranslutningsbeteende" med hjälp av describe, som innehåller flera testfall relaterade till serveranslutning.
-
-Serverinställning och avslut:
-
-Innan testerna körs startar den en testserver på en angiven port och stänger den när testningen är klar.
-
-Individuella testfall:
-
-Det finns individuella testfall skapade med hjälp av it. Dessa testfall gör HTTP-förfrågningar till specifika serverendpunkter och kontrollerar om svarsstatuskoderna är som förväntat.
-
-Spårning av teststatus:
-
-Den håller koll på en variabel, allTestsPassed, för att följa om alla tester har passerat.
-
-Åtgärder efter godkännande:
-
-I efterkrok utför den efter-godkännande-åtgärder (t.ex. städning) om alla tester passerar framgångsrikt.
-
-Lägg till fler testfall:
-
-Koden uppmuntrar att lägga till fler testfall för att täcka olika vägar och beteenden i applikationen utefter refraktorering.
-
-# Implementera tester frontend
-
-Import av nödvändiga paket och bibliotek för Selenium-webdriver-tester.
-
-Laddning av miljövariabler från .env-filen för att konfigurera testmiljön.
-
-Skapande av en instans av Chrome-webbläsaren med inställningar och konfiguration.
-
-Ange målet (target) URL för testerna.
-
-En testsvit som innehåller flera testfall för att verifiera olika aspekter av webbplatsen.
-
-Funktioner för att navigera till specifika länkar, matcha URL:er och verifiera textinnehåll på sidor.
-
-Konfigurering av timeout för testerna.
-
-Ett före-test som lanserar Chrome-webbläsaren och går till målet URL:en.
-
-Individuella testfall som utför följande åtgärder:
-
-Söker efter HTML-element som <body> och <head> för att kontrollera deras närvaro.
-Väntar på att ett element blir synligt på sidan.
-Kontrollerar sidtiteln och URL:en.
-Klickar på specifika länkar och verifierar att de tar dig till rätt sidor.
-Öppnar en ticket-visning och kontrollerar att nödvändiga element visas.
-Ett efter-test som avslutar Chrome-webbläsaren.
-
-Testerna är avsedda att automatisera testprocessen för att säkerställa att webbplatsen fungerar korrekt. De kontrollerar sidstruktur, interaktion och visuell representation för att säkerställa att allt fungerar som förväntat.Uppmuntrar även att lägga till fler testfall för att täcka olika aspekter av webbapplikationen utefter refraktorering.
