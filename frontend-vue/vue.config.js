@@ -4,7 +4,8 @@ module.exports = defineConfig({
 })
 
 module.exports = {
-  devServer: {
+/*  devServer: {
     port: 9000,
-  },
+  }, */
+  publicPath: "./",
 };

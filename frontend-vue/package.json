@@ -6,7 +6,8 @@
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint",
-        "test": "mocha test/frontendtest.js"
+        "test": "mocha test/frontendtest.js",
+        "deploy": "npm run build && rsync -av --delete dist/ anbx22@ssh.student.bth.se:www/editor"
     },
     "dependencies": {
         "clean": "^4.0.2",
@@ -44,12 +45,12 @@
         "parserOptions": {
             "parser": "@babel/eslint-parser"
         },
-        "rules": {},
-        "browserslist": [
-            "> 1%",
-            "last 2 versions",
-            "not dead",
-            "not ie 11"
-        ]
-    }
+        "rules": {}
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead",
+        "not ie 11"
+    ]
 }
