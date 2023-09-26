@@ -1,3 +1,7 @@
 node_modules/
 .env
 *.sqlite
+.vscode/
+*.wt
+backend-mongodb/db/diagnostic.data/
+backend-mongodb/db/journal/

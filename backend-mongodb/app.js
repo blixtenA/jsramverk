@@ -37,7 +37,11 @@ const io = require("socket.io")(httpServer, {
     },
 });
 
+<<<<<<< HEAD
 const port = process.env.PORT || 8081;
+=======
+const port = process.env.PORT || 1337;
+>>>>>>> origin/dev
 
 app.get("/", (req, res) => {
     res.json({
@@ -56,5 +60,8 @@ httpServer.listen(port, () => {
 fetchTrainPositions(io);
 
 module.exports = app; // Export the app variable
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/dev
