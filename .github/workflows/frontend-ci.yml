@@ -1,0 +1,49 @@
+name: Frontend CI/CD
+
+on:
+    push:
+        branches:
+            - dev-test
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+              with:
+                  node-version: 16.20.2
+
+            - name: Install global Vue CLI
+              run: npm install -g @vue/cli
+
+            - name: Install frontend dependencies
+              run: npm install
+
+            - name: Install additional dependencies
+              run: npm install selenium-webdriver
+
+            - name: Install additional dependencies
+              run: npm install node-html-parser chai mocha mongodb chai-http --save-dev
+
+            - name: Start frontend server
+              working-directory: frontend-vue
+              run: vue serve &
+
+            - name: Wait for frontend server to start
+              run: sleep 15s
+
+            - name: Install Xvfb (virtual display)
+              run: |
+                  sudo apt-get install -y xvfb
+                  Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+                  export DISPLAY=:99
+
+            - name: Run frontend tests
+              working-directory: frontend-vue
+              run: |
+                  xvfb-run -a --server-args="-screen 0 1280x1024x24" npm test

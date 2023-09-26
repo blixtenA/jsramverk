@@ -23,12 +23,21 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 
 const io = require("socket.io")(httpServer, {
     cors: {
-        origin: "http://localhost:9000",
+        origin: [
+            "http://localhost:8080",
+            "https://www.student.bth.se/~adde22/editor/",
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/delayed",
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/codes",
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/trains",
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets",
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/",
+            "http://localhost:8081",
+        ],
         methods: ["GET", "POST"],
     },
 });
 
-const port = 1337;
+const port = process.env.PORT || 8081;
 
 app.get("/", (req, res) => {
     res.json({
@@ -47,3 +56,5 @@ httpServer.listen(port, () => {
 fetchTrainPositions(io);
 
 module.exports = app; // Export the app variable
+
+
