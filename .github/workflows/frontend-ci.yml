@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - dev-test
+
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -17,13 +18,10 @@ jobs:
               with:
                   node-version: 16.20.2
 
-            - name: Install dependencies
+            - name: Install frontend dependencies
+              working-directory: frontend-vue # Specify the frontend directory
               run: npm install
 
-            - name: Run tests
+            - name: Run frontend tests
+              working-directory: frontend-vue # Specify the frontend directory
               run: npm test
-
-            - name: Build and Deploy
-              run: |
-                  npm run build
-                  rsync -av --delete -v dist/ adde22@ssh.student.bth.se:www/editor  # Replace with your deployment command
