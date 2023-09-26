@@ -4,7 +4,9 @@
     "description": "",
     "main": "app.js",
     "scripts": {
-        "test": "mocha --exit test/db-reset.js --exit test/app.js && mocha --exit test/mongodb.js"
+        "test": "mocha --exit test/db-reset.js --exit test/app.js && mocha --exit test/mongodb.js",
+        "watch": "nodemon app.js",
+        "start": "node app.js"
     },
     "keywords": [],
     "author": "",

@@ -8,9 +8,8 @@ describe("Reset Database and Create Collection", () => {
     let client;
 
     before(async () => {
-        // Connect to MongoDB
-        const mongoUri =
-            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority";
+        // Construct the MongoDB connection string using environment variables
+        const mongoUri = `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`;
         client = new MongoClient(mongoUri, {});
 
         try {

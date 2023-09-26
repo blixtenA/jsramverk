@@ -2,8 +2,8 @@ const { MongoClient } = require("mongodb");
 
 const database = {
     openDb: async function openDb() {
-        const uri =
-            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"; // Replace with your MongoDB Atlas URI
+        // Construct the MongoDB Atlas URI using environment variables
+        const uri = `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`;
 
         const client = new MongoClient(uri);
 

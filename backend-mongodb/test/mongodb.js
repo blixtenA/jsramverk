@@ -7,14 +7,16 @@ const expect = chai.expect;
 chai.should();
 chai.use(chaiHttp);
 
-describe("Database before", () => {
-    let client;
+let client; // Define the 'client' variable at a broader scope
 
+// Load environment variables
+const { ATLAS_USERNAME, ATLAS_PASSWORD } = process.env;
+
+describe("Database before", () => {
     before(async () => {
-        // Establish a connection to the MongoDB database before running the tests
-        client = new MongoClient(
-            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"
-        );
+        // Construct the MongoDB connection string using environment variables
+        const mongoUri = `mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`;
+        client = new MongoClient(mongoUri, {});
 
         try {
             await client.connect();
@@ -24,9 +26,10 @@ describe("Database before", () => {
             throw error;
         }
     });
+    // The 'it' block that checks for data in the 'tickets' collection
     it("should not have data in the 'tickets' collection", async () => {
         // Assuming you have access to the MongoDB client connected to your database
-        const db = client.db(); // Replace with your actual database name if necessary
+        const db = client.db(); // The 'client' variable is now accessible here
 
         // Query the 'tickets' collection to count documents
         const ticketsCollection = db.collection("tickets");
@@ -38,14 +41,12 @@ describe("Database before", () => {
 });
 
 describe("Ticket API", () => {
-    let client;
     let createdTicket; // To store the created ticket for deletion
 
     before(async () => {
-        // Establish a connection to the MongoDB database before running the tests
-        client = new MongoClient(
-            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"
-        );
+        // Construct the MongoDB connection string using environment variables
+        const mongoUri = `mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`;
+        client = new MongoClient(mongoUri, {});
 
         try {
             await client.connect();
