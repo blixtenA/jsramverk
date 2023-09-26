@@ -18,6 +18,9 @@ jobs:
               with:
                   node-version: 16.20.2
 
+            - name: Install global Vue CLI
+              run: npm install -g @vue/cli
+
             - name: Install frontend dependencies
               run: npm install
 
@@ -27,12 +30,9 @@ jobs:
             - name: Install additional dependencies
               run: npm install node-html-parser chai mocha mongodb chai-http --save-dev
 
-            - name: Install additional dependencies
-              run: npm install --save-dev @vue/cli
-
             - name: Start frontend server
               working-directory: frontend-vue
-              run: npm run serve
+              run: vue serve &
 
             - name: Wait for frontend server to start
               run: sleep 15s
