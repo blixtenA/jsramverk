@@ -60,8 +60,5 @@ httpServer.listen(port, () => {
 fetchTrainPositions(io);
 
 module.exports = app; // Export the app variable
-<<<<<<< HEAD
 
 
-=======
->>>>>>> origin/dev
