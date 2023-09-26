@@ -22,7 +22,7 @@ jobs:
               run: |
                   npm install
                   npm install node-html-parser chai mocha mongodb chai-http --save-dev
-                  npm install vue--save
+                  npm install vue --save-dev
 
             - name: Install additional dependencies
               run: npm install selenium-webdriver
