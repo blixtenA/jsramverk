@@ -26,6 +26,20 @@ jobs:
             - name: Install additional dependencies
               run: npm install selenium-webdriver
 
+            - name: Start frontend server
+              working-directory: frontend-vue
+              run: npm run serve &
+
+            - name: Wait for frontend server to start
+              run: sleep 10s
+
+            - name: Install Xvfb (virtual display)
+              run: |
+                  sudo apt-get install -y xvfb
+                  Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+                  export DISPLAY=:99
+
             - name: Run frontend tests
-              working-directory: frontend-vue # Specify the frontend directory
-              run: npm test
+              working-directory: frontend-vue
+              run: |
+                  xvfb-run -a --server-args="-screen 0 1280x1024x24" npm test

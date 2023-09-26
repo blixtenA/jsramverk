@@ -9,7 +9,7 @@ require("dotenv").config();
 
 // Get ChromeDriver path and port from environment variables
 const chromeDriverPath = process.env.CHROME_DRIVER_PATH;
-const chromeDriverPort = parseInt(process.env.CHROME_DRIVER_PORT || 9000);
+const chromeDriverPort = parseInt(process.env.CHROME_DRIVER_PORT || 8080);
 
 console.log(`ChromeDriver path: ${chromeDriverPath}`);
 console.log(`ChromeDriver port: ${chromeDriverPort}`);
@@ -30,7 +30,7 @@ const browser = new Builder()
 
 console.log("WebDriver instance created");
 
-const targetURL = "http://localhost:9000";
+const targetURL = "http://localhost:8080";
 
 describe("Test Suite", function () {
     function goToNavLink(target) {
@@ -72,8 +72,8 @@ describe("Test Suite", function () {
     });
 
     it("should wait for element to be visible", async function () {
-        const element = await browser.findElement(By.id("delayed-trains"));
-        await browser.wait(until.elementIsVisible(element), 20000);
+        const element = await browser.findElement(By.className("delayed"));
+        await browser.wait(until.elementIsVisible(element), 10000); // Wait for element to be visible
 
         assert.isTrue(await element.isDisplayed());
     });
@@ -96,7 +96,7 @@ describe("Test Suite", function () {
     });
 
     it("Test go to Home", function (done) {
-        // try use nav link
+        // try using the nav link
         goToNavLink("Home");
 
         assertH1("Home");
@@ -105,7 +105,6 @@ describe("Test Suite", function () {
         done();
     });
 
-    /* Ticket view specific tests */
     it("should open the ticket view when clicking a delayed item", async function () {
         // Simulate clicking the first delay (should be at least one, because Sweden)
         const firstDelayedItem = await browser.findElement(
@@ -117,12 +116,15 @@ describe("Test Suite", function () {
 
         // Wait for the ticket view container to be visible
         const ticketViewContainer = await browser.findElement(
-            By.id("container")
-        );
-        await browser.wait(until.elementIsVisible(ticketViewContainer), 20000);
+            By.className("modal")
+        ); // Use the class name
+        await browser.wait(until.elementIsVisible(ticketViewContainer), 10000); // Wait for element to be visible
 
-        const ticketTitle = await browser.findElement(By.css("h1"));
-        const backButton = await browser.findElement(By.id("back"));
+        // Find elements within the ticket view
+        const ticketTitle = await ticketViewContainer.findElement(By.css("h1"));
+        const backButton = await ticketViewContainer.findElement(
+            By.css("button")
+        ); // Use the button tag
 
         // asserts
         assert.isTrue(await ticketTitle.isDisplayed());
