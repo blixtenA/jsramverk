@@ -32,7 +32,7 @@ jobs:
 
             - name: Start frontend server
               working-directory: frontend-vue
-              run: npm run serve &
+              run: npm run serve
 
             - name: Wait for frontend server to start
               run: sleep 15s
