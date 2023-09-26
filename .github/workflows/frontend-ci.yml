@@ -18,10 +18,11 @@ jobs:
               with:
                   node-version: 16.20.2
 
-            - name: Install backend dependencies
+            - name: Install frontend dependencies
               run: |
                   npm install
                   npm install node-html-parser chai mocha mongodb chai-http --save-dev
+                  npm install vue--save
 
             - name: Install additional dependencies
               run: npm install selenium-webdriver
@@ -31,7 +32,7 @@ jobs:
               run: npm run serve &
 
             - name: Wait for frontend server to start
-              run: sleep 10s
+              run: sleep 15s
 
             - name: Install Xvfb (virtual display)
               run: |
