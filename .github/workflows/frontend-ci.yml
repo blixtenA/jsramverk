@@ -19,13 +19,16 @@ jobs:
                   node-version: 16.20.2
 
             - name: Install frontend dependencies
-              run: |
-                  npm install
-                  npm install node-html-parser chai mocha mongodb chai-http --save-dev
-                  npm install vue --save-dev
+              run: npm install
 
             - name: Install additional dependencies
               run: npm install selenium-webdriver
+
+            - name: Install additional dependencies
+              run: npm install node-html-parser chai mocha mongodb chai-http --save-dev
+
+            - name: Install additional dependencies
+              run: npm install @vue/cli --save-dev
 
             - name: Start frontend server
               working-directory: frontend-vue
