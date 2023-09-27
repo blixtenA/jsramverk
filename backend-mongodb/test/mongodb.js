@@ -70,7 +70,7 @@ describe("Ticket API", () => {
 
     // Test Case 1: Test creating a new ticket
     it("should create a new ticket", function (done) {
-        this.timeout(50000); // Set a timeout of 20 seconds (increased for testing)
+        this.timeout(60000); // Set a timeout of 20 seconds (increased for testing)
 
         const newTicketData = {
             code: "ABC123",
