@@ -1,3 +1,5 @@
+process.env.NODE_ENV = "test";
+
 const { MongoClient } = require("mongodb");
 const chai = require("chai");
 const chaiHttp = require("chai-http");
@@ -9,13 +11,10 @@ chai.use(chaiHttp);
 
 let client; // Define the 'client' variable at a broader scope
 
-// Load environment variables
-const { ATLAS_USERNAME, ATLAS_PASSWORD } = process.env;
-
 describe("Database before", () => {
     before(async () => {
-        // Construct the MongoDB connection string using environment variables
-        const mongoUri = `mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`;
+        // Update the MongoDB connection string to use the "testlocal" database
+        const mongoUri = "mongodb://localhost:27017/testlocal";
         client = new MongoClient(mongoUri, {});
 
         try {
@@ -26,6 +25,7 @@ describe("Database before", () => {
             throw error;
         }
     });
+
     // The 'it' block that checks for data in the 'tickets' collection
     it("should not have data in the 'tickets' collection", async () => {
         // Assuming you have access to the MongoDB client connected to your database
@@ -35,8 +35,8 @@ describe("Database before", () => {
         const ticketsCollection = db.collection("tickets");
         const ticketCount = await ticketsCollection.countDocuments();
 
-        // Assert that there are at least one document in the collection
-        expect(ticketCount).to.be.at.least(0);
+        // Assert that there are no documents in the collection (since it's been reset)
+        expect(ticketCount).to.equal(0);
     });
 });
 
@@ -44,8 +44,8 @@ describe("Ticket API", () => {
     let createdTicket; // To store the created ticket for deletion
 
     before(async () => {
-        // Construct the MongoDB connection string using environment variables
-        const mongoUri = `mongodb+srv://${ATLAS_USERNAME}:${ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`;
+        // Update the MongoDB connection string to use the "testlocal" database
+        const mongoUri = "mongodb://localhost:27017/testlocal";
         client = new MongoClient(mongoUri, {});
 
         try {
@@ -129,13 +129,13 @@ describe("Ticket API", () => {
     describe("Database after", () => {
         it("should have data in the 'tickets' collection", async () => {
             // Assuming you have access to the MongoDB client connected to your database
-            const db = client.db(); // Replace with your actual database name if necessary
+            const db = client.db(); // The 'client' variable is now accessible here
 
             // Query the 'tickets' collection to count documents
             const ticketsCollection = db.collection("tickets");
             const ticketCount = await ticketsCollection.countDocuments();
 
-            // Assert that there are at least one document in the collection
+            // Assert that there is at least one document in the collection (created in the test)
             expect(ticketCount).to.be.at.least(1);
         });
     });

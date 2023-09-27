@@ -2,20 +2,21 @@ const { MongoClient } = require("mongodb");
 
 const database = {
     openDb: async function openDb() {
-<<<<<<< HEAD
+        let dbName = "productionDB"; // Set the default database name
+
+        if (process.env.NODE_ENV === "test") {
+            dbName = "testlocal"; // Use "testlocal" as the database name for testing
+        }
+
         // Construct the MongoDB Atlas URI using environment variables
-        const uri = `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`;
-=======
-        const uri =
-            "mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"; // Replace with your MongoDB Atlas URI
->>>>>>> origin/dev
+        const uri = `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 
         const client = new MongoClient(uri);
 
         try {
             await client.connect();
             console.log("Connected to MongoDB Atlas");
-            const db = client.db("test"); // Use your desired database name here
+            const db = client.db(dbName); // Use the selected database name
 
             return db;
         } catch (error) {
