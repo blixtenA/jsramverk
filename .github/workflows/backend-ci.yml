@@ -7,7 +7,8 @@ on:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
+
         env:
             NODE_OPTIONS: "--max-old-space-size=4096" # Increase Node.js memory limit
         steps:
@@ -19,15 +20,10 @@ jobs:
               with:
                   node-version: 16.20.2
 
-            # Install MongoDB from the official MongoDB repository
-            - name: Install MongoDB
+            - name: Set up MongoDB
               run: |
-                  sudo apt-get update -y
-                  sudo apt-get install -y gnupg
-                  wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-                  echo "deb http://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-                  sudo apt-get update -y
-                  sudo apt-get install -y mongodb-org
+                  docker pull mongo:5.0
+                  docker run --name mongodb -d -p 27017:27017 mongo:5.0
 
             # Start MongoDB service
             - name: Start MongoDB
