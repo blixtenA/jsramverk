@@ -8,8 +8,7 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-        env:
-            NODE_OPTIONS: "--max-old-space-size=4096" # Increase Node.js memory limit
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
@@ -19,10 +18,19 @@ jobs:
               with:
                   node-version: 16.20.2
 
+            - name: Install MongoDB
+              run: sudo apt-get install -y mongodb
+
+            - name: Start MongoDB
+              run: sudo service mongod start
+
+            - name: Wait for MongoDB to start
+              run: sleep 10
+
             - name: Install backend dependencies
-              working-directory: backend-mongodb # Specify the backend directory
+              working-directory: backend-mongodb
               run: npm install
 
             - name: Run backend tests
-              working-directory: backend-mongodb # Specify the backend directory
+              working-directory: backend-mongodb
               run: npm test
