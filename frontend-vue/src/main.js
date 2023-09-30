@@ -1,22 +1,17 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import { createRouter, createWebHistory } from "vue-router";
-import RenderMainView from "./components/RenderMainView.vue";
+import { createApp} from 'vue';
+import router from './router';
+import App from './App.vue';
 
-const routes = [
-  {
-    path: "/",
-    name: "main",
-    component: RenderMainView,
-  },
-];
+let app = "";
+let containerSelector = "#app";
 
-const router = createRouter({
-    history: createWebHistory(),
-    routes,
-});
+const mountPoint = document.querySelector(containerSelector);
 
-const app = createApp(App);
-app.use(router);
-
-app.mount("#app");
+if (mountPoint && mountPoint.__vue_app__ !== undefined) {
+    app = mountPoint.__vue_app__._instance.proxy;
+}
+else {
+    app = createApp(App);
+    app.use(router);
+    app.mount(containerSelector);
+}

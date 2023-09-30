@@ -33,6 +33,7 @@ p {
     display: flex;
 }
 
+/* Styles for the container */
 .delayed {
     height: 100vh;
     width: 40vw;
@@ -42,37 +43,36 @@ p {
 }
 
 .map {
-    height: 100vh;
-    width: 60vw;
+height: 100vh;
+width: 60vw;
 }
 
 .delayed-trains {
-    display: flex;
-    flex-direction: column;
+display: flex;
+flex-direction: column;
 }
 
 .delayed-trains > div {
-    display: flex;
-    flex-direction: row;
-    border-top: 1px solid #ccc;
-    padding: 0.2rem 0.8rem;
-    align-items: center;
-    cursor: pointer;
+display: flex;
+flex-direction: column; 
+border-top: 1px solid #ccc;
+padding: 0.2rem 0.8rem;
+cursor: pointer;
 }
 
 .delayed-trains > div:nth-of-type(2n) {
-    background-color: #eee;
+background-color: #eee;
 }
 
 .train-number {
-    font-size: 2rem;
-    font-weight: bold;
-    width: 30%;
-    background-color: lightgray;
+font-size: 2rem;
+font-weight: bold;
+background-color: lightgray;
 }
 
 .current-station {
-    width: 30%;
+margin-top: 0.5rem; 
+width: 100%; 
 }
 
 .ticket-container {
@@ -113,3 +113,26 @@ p {
     font-size: 20px;
   }
   
+  /* Styles for the modal container */
+  .modal {
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+    align-items: center; /* Center content horizontally */
+  }
+  
+  /* Styles for the modal heading */
+  .modal h1 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  /* Styles for the modal paragraphs (or other text content) */
+  .modal p {
+    font-size: 1rem;
+  }
