@@ -45,6 +45,7 @@ p {
 .map {
 height: 100vh;
 width: 60vw;
+overflow: hidden;
 }
 
 .delayed-trains {

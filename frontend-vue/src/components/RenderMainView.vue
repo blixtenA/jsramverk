@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import "leaflet/dist/leaflet.css";
 import io from "socket.io-client";
 import L from "leaflet";
 import RenderDelayedTable from "./RenderDelayedTable.vue";
@@ -27,8 +28,6 @@ export default {
   },
   methods: {
     renderMainView() {
-      console.log("Starting renderMainView"); // Log when the function starts
-
       const container = this.$refs.mainDelayedTrains;
       container.innerHTML = "";
 
@@ -40,42 +39,37 @@ export default {
           '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       }).addTo(map);
 
-      const socket = io(
-        "https://jsramverk-train-adde22anbx22.azurewebsites.net"
-      );
+      // Update the socket connection URL to your Azure backend
+      const socket = io("https://jsramverk-train-adde22anbx22.azurewebsites.net");
 
-      // Add a "message" event listener to handle incoming data
       socket.on("message", (data) => {
-        console.log("Received data from socket:", data);
-
         if (data.trainnumber in this.markers) {
-          let marker = this.markers[data.trainnumber];
-          marker.setLatLng(data.position);
-          console.log("Updated existing marker:", data.trainnumber);
+            let marker = this.markers[data.trainnumber];
+            marker.setLatLng(data.position);
         } else {
-          let marker = L.marker(data.position)
+            const defaultIcon = L.icon({
+            iconUrl: require("leaflet/dist/images/marker-icon.png"),
+            iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+            iconSize: [25, 41], 
+            iconAnchor: [12, 41], 
+            popupAnchor: [1, -34],
+            });
+
+            // Create a marker using the default icon and bind it to the map
+            let marker = L.marker(data.position, { icon: defaultIcon })
             .bindPopup(data.trainnumber)
             .addTo(map);
-          this.markers[data.trainnumber] = marker;
-          console.log("Added new marker:", data.trainnumber);
+            
+            this.markers[data.trainnumber] = marker;
         }
-      });
-      console.log("After defining socket event listener");
-      
+    });
+
       // Update the fetch URL to your Azure backend
-      fetch(
-        "https://jsramverk-train-adde22anbx22.azurewebsites.net/delayed"
-      )
+      fetch("https://jsramverk-train-adde22anbx22.azurewebsites.net/delayed")
         .then((response) => response.json())
         .then((result) => {
           this.delayedData = result.data;
-          console.log("Fetched delayed data:", this.delayedData);
-        })
-        .catch((error) => {
-          console.error("Error fetching delayed data:", error);
         });
-
-      console.log("Exiting renderMainView"); // Log when the function finishes
     },
   },
   components: {
