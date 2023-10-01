@@ -1,17 +1,13 @@
-import { createApp} from 'vue';
-import router from './router';
+/*import { createApp } from 'vue'
+import App from './App.vue'
+
+createApp(App).mount('#app')
+*/
+
+import { createApp } from 'vue';
 import App from './App.vue';
+import router from './router';
 
-let app = "";
-let containerSelector = "#app";
-
-const mountPoint = document.querySelector(containerSelector);
-
-if (mountPoint && mountPoint.__vue_app__ !== undefined) {
-    app = mountPoint.__vue_app__._instance.proxy;
-}
-else {
-    app = createApp(App);
-    app.use(router);
-    app.mount(containerSelector);
-}
+const app = createApp(App);
+app.use(router);
+app.mount('#app');
