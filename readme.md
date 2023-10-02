@@ -156,18 +156,20 @@ Se om MongoDB fungerar, se terminal och run:
 
 mongo
 
-Mest viktiga till detta projekt att koppla sig mot databsen skapad via mongodb atlas:
+Mest viktiga till detta projekt att sedan koppla sig mot produktions databasen skapad via mongodb atlas i databases.js:
 
 const { MongoClient } = require("mongodb");
 
-const database = {
-openDb: async function openDb() {
-const uri =
-"mongodb+srv://adriandedorson2:8PJFVm5m6xStZS59@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority"; // Replace with your MongoDB Atlas URI
+// Construct the MongoDB Atlas URI using environment variables
+const uri = `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 
-        const client = new MongoClient(uri);
+const client = new MongoClient(uri);
 
-kopplar upp sig till databasen
+Implementerat testdatabas inuti if sats
+
+if (process.env.NODE_ENV === "test") {
+dbName = "testlocal"; // Använd "testlocal" som databasnamn för tester
+}
 
 # implementera mongoDb med node samt skypa ny modiferad version av databas.js
 
