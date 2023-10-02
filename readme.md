@@ -152,7 +152,7 @@ Verify that MongoDB is running with:
 
 sudo systemctl status mongod
 
-Se om MongoDB fungerar, se terminal och run:
+To access MongoDB, open a terminal and run:
 
 mongo
 
@@ -173,9 +173,7 @@ dbName = "testlocal"; // Använd "testlocal" som databasnamn för tester
 
 # implementera mongoDb med node samt skypa ny modiferad version av databas.js
 
-installera inom backend-mongodb mappen:
-
-npm install
+installera inom backend mappen:
 
 npm install mongodb --save
 
@@ -186,9 +184,9 @@ installerade kompononenter till backend
 npm install node-html-parser chai mocha mongodb chai-http
 --save-dev
 
-installerade test kompononenter till frontend
+installerade test lompononenter till frontend
 
-npm install node-html-parser chai mocha mongodb chai-http selenium-webdriver --save-dev
+npm install selenium-webdriver
 
 \*Obs For att testa frontend ska en starta appen via servarna innan.
 

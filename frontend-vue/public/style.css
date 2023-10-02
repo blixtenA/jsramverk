@@ -48,12 +48,13 @@ p {
     overflow: hidden;
 }
 
+
 .delayed-trains {
     display: flex;
     flex-direction: column;
 }
 
-.delayed-trains > div {
+.delayed-trains>div {
     display: flex;
     flex-direction: column;
     border-top: 1px solid #ccc;
@@ -61,7 +62,7 @@ p {
     cursor: pointer;
 }
 
-.delayed-trains > div:nth-of-type(2n) {
+.delayed-trains>div:nth-of-type(2n) {
     background-color: #eee;
 }
 
