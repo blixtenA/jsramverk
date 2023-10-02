@@ -2,7 +2,6 @@ const { Builder, By, until } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const { Options } = require("selenium-webdriver/chrome");
 const { assert } = require("chai");
-const { ExpectedConditions } = require("selenium-webdriver");
 
 // Load environment variables from .env
 require("dotenv").config();

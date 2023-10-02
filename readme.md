@@ -181,7 +181,7 @@ npm install mongodb --save
 
 installerade kompononenter till backend
 
-npm install node-html-parser chai mocha mongodb chai-http selenium-webdriver sinon --save-dev
+npm install node-html-parser chai mocha mongodb chai-http
 --save-dev
 
 installerade test kompononenter till frontend
@@ -226,29 +226,72 @@ Koden uppmuntrar att lägga till fler testfall för att täcka olika vägar och 
 
 # Implementera tester frontend
 
-Import av nödvändiga paket och bibliotek för Selenium-webdriver-tester.
+// Import av nödvändiga paket och bibliotek för Selenium-webdriver-tester.
 
-Laddning av miljövariabler från .env-filen för att konfigurera testmiljön.
+// Laddning av miljövariabler från .env-filen för att konfigurera testmiljön.
 
-Skapande av en instans av Chrome-webbläsaren med inställningar och konfiguration.
+// Skapande av en instans av Chrome-webbläsaren med inställningar och konfiguration för headless-läge.
 
-Ange målet (target) URL för testerna.
+// Ange målet (target) URL för testerna.
 
-En testsvit som innehåller flera testfall för att verifiera olika aspekter av webbplatsen.
+// En testsvit som innehåller flera testfall för att verifiera olika aspekter av webbplatsen.
 
-Funktioner för att navigera till specifika länkar, matcha URL:er och verifiera textinnehåll på sidor.
+// Funktioner för att navigera till specifika länkar, matcha URL:er och verifiera textinnehåll på sidor.
 
-Konfigurering av timeout för testerna.
+// Konfigurering av timeout för testerna.
 
-Ett före-test som lanserar Chrome-webbläsaren och går till målet URL:en.
+// Ett före-test som lanserar Chrome-webbläsaren och går till målet URL:en.
 
-Individuella testfall som utför följande åtgärder:
+// Individuella testfall som utför olika åtgärder.
 
-Söker efter HTML-element som <body> och <head> för att kontrollera deras närvaro.
-Väntar på att ett element blir synligt på sidan.
-Kontrollerar sidtiteln och URL:en.
-Klickar på specifika länkar och verifierar att de tar dig till rätt sidor.
-Öppnar en ticket-visning och kontrollerar att nödvändiga element visas.
-Ett efter-test som avslutar Chrome-webbläsaren.
+// Ett efter-test som avslutar Chrome-webbläsaren.
 
-Testerna är avsedda att automatisera testprocessen för att säkerställa att webbplatsen fungerar korrekt. De kontrollerar sidstruktur, interaktion och visuell representation för att säkerställa att allt fungerar som förväntat.Uppmuntrar även att lägga till fler testfall för att täcka olika aspekter av webbapplikationen utefter refraktorering.
+Testerna är avsedda att automatisera testprocessen för att säkerställa att webbplatsen fungerar korrekt. De kontrollerar sidstruktur, interaktion och visuell representation för att säkerställa att allt fungerar som förväntat. Det smidiga headless-läget har förenklat och effektiviserat testkörningen. Eventuella ytterligare testfall kan enkelt läggas till för att täcka olika aspekter av webbapplikationen efter eventuell refraktorering. Headless mycket smidigare mot Ci kedja.
+
+# Implementera CI Kedja
+
+CI/CD för Backend-Test
+I den här CI/CD-kedjan för backend implementerar vi ett automatiskt bygg- och testflöde för backend-applikationen varje gång det sker en push till dev-grenen.
+
+Checkout code: Koden hämtas från din Git-repository för att initiera bygg- och testprocessen.
+
+Set up Node.js: Den aktuella Node.js-versionen (16.20.2) installeras för att säkerställa att testerna körs i rätt miljö.
+
+Set up MongoDB: En Docker-container med MongoDB (version 5.0) hämtas och startas. Detta ger en dedikerad MongoDB-miljö för att köra backend-testerna.
+
+Start MongoDB-service: MongoDB-tjänsten startas i Docker-kontainern.
+
+Install backend dependencies: Backend-projektets beroenden installeras.
+
+Run backend tests: Backend-testerna körs i sin dedikerade miljö. Eventuella fel eller problem rapporteras tillbaka.
+
+CI/CD för Frontend-tests
+I den här CI-kedjan för frontend implementerar vi ett automatiskt bygg- och testflöde för frontend-applikationen varje gång det sker en push till dev-grenen.
+
+Checkout code: Koden hämtas från din Git-repository för att initiera bygg- och testprocessen.
+
+Set up Node.js: Den aktuella Node.js-versionen (16.20.2) installeras för att säkerställa att testerna körs i rätt miljö.
+
+Install dependencies: Frontend-projektets beroenden installeras.
+
+Run Selenium tests: Selenium-tester körs i headless Chrome-webbläsaren. Denna typ av tester kan användas för att verifiera webbapplikationens funktionalitet och användarinteraktioner.
+
+Dessa CI-kedjor möjliggör en smidig utvecklingsprocess genom att automatisera bygg- och teststegen och säkerställa att koden fungerar korrekt i både backend- och frontend-applikationerna. De hjälper också till att upptäcka och åtgärda eventuella problem tidigt i utvecklingscykeln.
+
+# Driftsättning Backend
+
+Här är de stegen som har utförts för att framgångsrikt driftsätta backend-applikationen på Azure App Services:
+
+Azure-konto och resursgrupp: Ett Azure-konto har skapats, och en resursgrupp har skapats inom Azure Portal för att organisera och hantera de resurser som behövs för applikationen.
+
+Azure App Service-plan: En App Service-plan har skapats för att definiera resurser och skalning för din backend-applikation.
+
+Skapa och publicera webbapp: Backend-koden har publicerats på Azure App Services som en webbapp. Detta görs enkelt med hjälp av Azure Portal eller genom att använda verktyg som Azure CLI eller Azure DevOps-pipelines.
+
+Hantera miljövariabler: Alla nödvändiga miljövariabler och anslutningssträngar, inklusive din anslutning till Azure-databasen, har konfigurerats som Application Settings i Azure Portal eller som miljövariabler för att skydda känslig information.
+
+Konfigurera CORS-policy: För att hantera Cross-Origin Resource Sharing (CORS) och tillåta anslutningar från olika källor, har en säker och specifik CORS-policy konfigurerats. Detta är viktigt för att säkerställa att klientapplikationer, både lokalt och från studentservern, kan kommunicera med din backend på Azure App Services.
+
+Genom att implementera dessa steg har din backend-applikation blivit framgångsrikt driftsatt på Azure App Services och är redo att acceptera anslutningar från olika källor. Den har också säkrats genom korrekt hantering av miljövariabler och konfigurering av en CORS-policy för att tillåta säker och smidig kommunikation med din frontend och andra klienter. Detta möjliggör en pålitlig och skalbar driftsättning av din backend-applikation på Azure-molnet.
+
+# Driftsättning Frontend
