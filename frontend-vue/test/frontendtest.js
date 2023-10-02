@@ -109,26 +109,34 @@ describe("Test Suite", function () {
 
     it("should open the ticket view when clicking a delayed item", async function () {
         // Simulate clicking the first delay (should be at least one, because Sweden)
-        const firstDelayedItem = await browser.findElement(
-            By.css(".train-number")
+        console.log("Locating .train-number element...");
+        const firstDelayedItem = await browser.wait(
+            until.elementLocated(By.css(".train-number")),
+            10000
         );
 
-        // Execute a click action on the first delayed item
-        await browser.actions().click(firstDelayedItem).perform();
+        console.log(".train-number element located. Clicking...");
+        await browser.wait(until.elementIsEnabled(firstDelayedItem), 10000); // Wait for element to be clickable
+        await firstDelayedItem.click();
 
         // Wait for the ticket view container to be visible
-        const ticketViewContainer = await browser.findElement(
-            By.className("modal")
-        ); // Use the class name
+        console.log("Waiting for ticket view container to be visible...");
+        const ticketViewContainer = await browser.wait(
+            until.elementLocated(By.className("modal")),
+            10000
+        );
+
         await browser.wait(until.elementIsVisible(ticketViewContainer), 10000); // Wait for element to be visible
 
         // Find elements within the ticket view
+        console.log("Finding elements within the ticket view...");
         const ticketTitle = await ticketViewContainer.findElement(By.css("h1"));
         const backButton = await ticketViewContainer.findElement(
             By.css("button")
-        ); // Use the button tag
+        );
 
         // asserts
+        console.log("Asserting elements...");
         assert.isTrue(await ticketTitle.isDisplayed());
         assert.isTrue(await backButton.isDisplayed());
     });

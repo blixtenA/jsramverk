@@ -21,17 +21,9 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: List /usr/local/bin/
-              run: ls -l /usr/local/bin/
-
             - name: Run Selenium tests
-              run: npm test
-              env:
-                  CHROME_BIN: /usr/bin/google-chrome
-                  CHROME_DRIVER_PATH: /usr/local/bin/chromedriver
-
-            - name: Run Selenium tests
+              working-directory: frontend-vue # Specify the backend directory
               run: npm test -- --verbose
               env:
                   CHROME_BIN: /usr/bin/google-chrome
-                  CHROME_DRIVER_PATH: /usr/bin/chromedriver
+                  CHROME_DRIVER_PATH: /usr/local/bin/chromedriver
