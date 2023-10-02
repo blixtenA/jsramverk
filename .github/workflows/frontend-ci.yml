@@ -21,15 +21,6 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: Download Chrome and ChromeDriver
-              run: |
-                  CHROME_VERSION=$(google-chrome-stable --version | cut -d ' ' -f 3)
-                  CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION})
-                  curl -sS -o chromedriver.zip https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip
-                  unzip chromedriver.zip
-                  sudo mv chromedriver /usr/local/bin/
-                  sudo chmod +x /usr/local/bin/chromedriver
-
             - name: Run Selenium tests
               run: npm test
               env:
