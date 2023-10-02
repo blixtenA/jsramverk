@@ -1,11 +1,6 @@
 // router.js
-<<<<<<< HEAD
 import { createRouter, createWebHashHistory } from "vue-router";
 import RenderMainView from "./components/RenderMainView.vue";
-=======
-import { createRouter, createWebHashHistory } from 'vue-router';
-import RenderMainView from './components/RenderMainView.vue';
->>>>>>> cf083d4a604f17b3d34f2cd944f9c3a9a1749613
 
 const routes = [
     {

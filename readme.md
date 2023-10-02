@@ -297,3 +297,17 @@ Konfigurera CORS-policy: För att hantera Cross-Origin Resource Sharing (CORS) o
 Genom att implementera dessa steg har din backend-applikation blivit framgångsrikt driftsatt på Azure App Services och är redo att acceptera anslutningar från olika källor. Den har också säkrats genom korrekt hantering av miljövariabler och konfigurering av en CORS-policy för att tillåta säker och smidig kommunikation med din frontend och andra klienter. Detta möjliggör en pålitlig och skalbar driftsättning av din backend-applikation på Azure-molnet.
 
 # Driftsättning Frontend
+
+Frontend driftsatt via studentservern
+
+Följande steg utfördes: 
+
+Konvertering av existerande kod till Vue (3). 
+
+Tillägg av router för hantering av navigering - hashhantering behövdes för historiken
+
+Uppdatering av Vue samt Leaflet (npm install / update)
+
+Deploy-script använt vid package.json,  "deploy": "npm run build && rsync -av --delete dist/ anbx22@ssh.student.bth.se:www/editor"
+
+Test av funktionalitet efter publish till studentservern. 
