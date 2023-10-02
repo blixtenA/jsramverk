@@ -1,23 +1,23 @@
 // router.js
-import { createRouter, createWebHistory } from 'vue-router';
-import RenderMainView from './components/RenderMainView.vue';
+import { createRouter, createWebHashHistory } from "vue-router";
+import RenderMainView from "./components/RenderMainView.vue";
 
 const routes = [
-  {
-    path: '/',
-    name: 'main',
-    component: RenderMainView,
-  },
+    {
+        path: "/",
+        name: "main",
+        component: RenderMainView,
+    },
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes,
-  });
-  
-  router.beforeEach((to, from, next) => {
-    console.log('Navigating to:', to.path);
+});
+
+router.beforeEach((to, from, next) => {
+    console.log("Navigating to:", to.path);
     next();
-  });
-  
-  export default router;
+});
+
+export default router;

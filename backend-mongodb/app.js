@@ -26,6 +26,7 @@ const io = require("socket.io")(httpServer, {
         origin: [
             "http://localhost:8080",
             "https://www.student.bth.se/~adde22/editor/",
+            "https: //www.student.bth.se/~anbx22/editor/",
             "https://jsramverk-train-adde22anbx22.azurewebsites.net/delayed",
             "https://jsramverk-train-adde22anbx22.azurewebsites.net/codes",
             "https://jsramverk-train-adde22anbx22.azurewebsites.net/trains",

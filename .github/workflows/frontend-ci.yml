@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: Frontend Tests
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
 
         steps:
             - name: Checkout code
@@ -18,32 +18,26 @@ jobs:
               with:
                   node-version: 16.20.2
 
-            - name: Install global Vue CLI
-              run: npm install -g @vue/cli
-
-            - name: Install frontend dependencies
+            - name: Install dependencies
               run: npm install
 
-            - name: Install additional dependencies
-              run: npm install selenium-webdriver
-
-            - name: Install additional dependencies
-              run: npm install node-html-parser chai mocha mongodb chai-http --save-dev
-
-            - name: Start frontend server
-              working-directory: frontend-vue
-              run: vue serve &
-
-            - name: Wait for frontend server to start
-              run: sleep 15s
-
-            - name: Install Xvfb (virtual display)
+            - name: Download Chrome and ChromeDriver
               run: |
-                  sudo apt-get install -y xvfb
-                  Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-                  export DISPLAY=:99
+                  CHROME_VERSION=$(google-chrome-stable --version | cut -d ' ' -f 3)
+                  CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION})
+                  curl -sS -o chromedriver.zip https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip
+                  unzip chromedriver.zip
+                  sudo mv chromedriver /usr/local/bin/
+                  sudo chmod +x /usr/local/bin/chromedriver
 
-            - name: Run frontend tests
-              working-directory: frontend-vue
-              run: |
-                  xvfb-run -a --server-args="-screen 0 1280x1024x24" npm test
+            - name: Run Selenium tests
+              run: npm test
+              env:
+                  CHROME_BIN: /usr/bin/google-chrome
+                  CHROME_DRIVER_PATH: /usr/local/bin/chromedriver
+
+            - name: Run Selenium tests
+              run: npm test
+              env:
+                  CHROME_BIN: /usr/bin/google-chrome
+                  CHROME_DRIVER_PATH: /usr/bin/chromedriver

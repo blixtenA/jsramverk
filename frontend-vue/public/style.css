@@ -43,36 +43,37 @@ p {
 }
 
 .map {
-height: 100vh;
-width: 60vw;
+    height: 100vh;
+    width: 60vw;
+    overflow: hidden;
 }
 
 .delayed-trains {
-display: flex;
-flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .delayed-trains > div {
-display: flex;
-flex-direction: column; 
-border-top: 1px solid #ccc;
-padding: 0.2rem 0.8rem;
-cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #ccc;
+    padding: 0.2rem 0.8rem;
+    cursor: pointer;
 }
 
 .delayed-trains > div:nth-of-type(2n) {
-background-color: #eee;
+    background-color: #eee;
 }
 
 .train-number {
-font-size: 2rem;
-font-weight: bold;
-background-color: lightgray;
+    font-size: 2rem;
+    font-weight: bold;
+    background-color: lightgray;
 }
 
 .current-station {
-margin-top: 0.5rem; 
-width: 100%; 
+    margin-top: 0.5rem;
+    width: 100%;
 }
 
 .ticket-container {
@@ -86,35 +87,35 @@ width: 100%;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; 
-  }
-  
-  /* Styles for the modal container */
-  .ticket-modal {
-    background-color: #fff; 
+    z-index: 1000;
+}
+
+/* Styles for the modal container */
+.ticket-modal {
+    background-color: #fff;
     padding: 20px;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); 
-    max-width: 80%; 
-    max-height: 80%; 
-    overflow-y: auto; 
-  }
-  
-  /* Close button style */
-  .ticket-close-button {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+/* Close button style */
+.ticket-close-button {
     position: absolute;
     top: 10px;
     right: 10px;
     cursor: pointer;
     font-size: 20px;
-  }
-  
-  /* Styles for the modal container */
-  .modal {
+}
+
+/* Styles for the modal container */
+.modal {
     background-color: white;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -124,15 +125,15 @@ width: 100%;
     display: flex;
     flex-direction: column; /* Stack content vertically */
     align-items: center; /* Center content horizontally */
-  }
-  
-  /* Styles for the modal heading */
-  .modal h1 {
+}
+
+/* Styles for the modal heading */
+.modal h1 {
     font-size: 1.5rem;
     margin-bottom: 10px;
-  }
-  
-  /* Styles for the modal paragraphs (or other text content) */
-  .modal p {
+}
+
+/* Styles for the modal paragraphs (or other text content) */
+.modal p {
     font-size: 1rem;
-  }
+}

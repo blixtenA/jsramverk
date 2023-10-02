@@ -181,7 +181,8 @@ npm install mongodb --save
 
 installerade kompononenter till backend
 
-npm install node-html-parser chai mocha mongodb chai-http selenium-webdriver --save-dev
+npm install node-html-parser chai mocha mongodb chai-http selenium-webdriver sinon --save-dev
+--save-dev
 
 installerade test kompononenter till frontend
 
