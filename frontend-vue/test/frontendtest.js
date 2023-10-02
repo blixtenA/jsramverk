@@ -17,8 +17,10 @@ console.log(`ChromeDriver port: ${chromeDriverPort}`);
 // Set the ChromeDriver path as a system property
 process.env["webdriver.chrome.driver"] = chromeDriverPath;
 
-// Configure Chrome options
-const options = new Options().setChromeBinaryPath(chromeDriverPath); // Use the specified binary path
+// Configure Chrome options for headless mode
+const options = new Options()
+    .setChromeBinaryPath(chromeDriverPath) // Use the specified binary path
+    .headless(); // Enable headless mode
 
 console.log("Chrome options:", options);
 
