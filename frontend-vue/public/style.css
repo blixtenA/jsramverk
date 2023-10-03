@@ -43,23 +43,18 @@ p {
 }
 
 .map {
-<<<<<<< HEAD
     height: 100vh;
     width: 60vw;
     overflow: hidden;
-=======
-height: 100vh;
-width: 60vw;
-overflow: hidden;
->>>>>>> cf083d4a604f17b3d34f2cd944f9c3a9a1749613
 }
+
 
 .delayed-trains {
     display: flex;
     flex-direction: column;
 }
 
-.delayed-trains > div {
+.delayed-trains>div {
     display: flex;
     flex-direction: column;
     border-top: 1px solid #ccc;
@@ -67,7 +62,7 @@ overflow: hidden;
     cursor: pointer;
 }
 
-.delayed-trains > div:nth-of-type(2n) {
+.delayed-trains>div:nth-of-type(2n) {
     background-color: #eee;
 }
 

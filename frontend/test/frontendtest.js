@@ -1,4 +1,3 @@
-
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const { Options } = require('selenium-webdriver/chrome');
@@ -10,7 +9,7 @@ require('dotenv').config();
 
 // Get ChromeDriver path and port from environment variables
 const chromeDriverPath = process.env.CHROME_DRIVER_PATH;
-const chromeDriverPort = parseInt(process.env.CHROME_DRIVER_PORT || 9002);
+const chromeDriverPort = parseInt(process.env.CHROME_DRIVER_PORT || 9000);
 
 console.log(`ChromeDriver path: ${chromeDriverPath}`);
 console.log(`ChromeDriver port: ${chromeDriverPort}`);
@@ -31,8 +30,6 @@ const browser = new Builder()
   .build();
 
 console.log('WebDriver instance created');
-
-console.log("WebDriver instance created");
 
 const targetURL = "http://localhost:9000";
 
