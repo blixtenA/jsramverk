@@ -21,36 +21,55 @@ export default {
         return {
             markers: {},
             delayedData: [],
+            originalDelayedData: [],
         };
     },
     mounted() {
         this.renderMainView();
     },
     methods: {
-        renderMainView() {
-            const container = this.$refs.mainDelayedTrains;
-            container.innerHTML = "";
+    renderMainView() {
+        const container = this.$refs.mainDelayedTrains;
+        container.innerHTML = "";
 
-            const map = L.map(this.$refs.map).setView(
-                [62.173276, 14.942265],
-                5
+        const map = L.map(this.$refs.map).setView(
+            [62.173276, 14.942265],
+            5
+        );
+
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution:
+                '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+
+        // Update the socket connection URL to your Azure backend
+        const socket = io(
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net"
+        );
+
+        socket.on("message", (data) => {
+
+            // Check if the train is delayed based on the delayedData
+            const isDelayed = this.delayedData.some(
+                (delayedTrain) => delayedTrain.OperationalTrainNumber === data.trainnumber
             );
 
-            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                maxZoom: 19,
-                attribution:
-                    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            }).addTo(map);
-
-            // Update the socket connection URL to your Azure backend
-            const socket = io(
-                "https://jsramverk-train-adde22anbx22.azurewebsites.net"
-            );
-
-            socket.on("message", (data) => {
+            if (isDelayed) {
                 if (data.trainnumber in this.markers) {
                     let marker = this.markers[data.trainnumber];
                     marker.setLatLng(data.position);
+
+                    // Click event for marker
+                    marker.on("click", () => {
+                        this.delayedData = [...this.originalDelayedData];
+
+                        const clickedTrain = this.delayedData.filter(
+                            (delayedTrain) => delayedTrain.OperationalTrainNumber === data.trainnumber
+                        );
+
+                        this.delayedData = clickedTrain;
+                    });
                 } else {
                     const defaultIcon = L.icon({
                         iconUrl: require("leaflet/dist/images/marker-icon.png"),
@@ -66,19 +85,34 @@ export default {
                         .addTo(map);
 
                     this.markers[data.trainnumber] = marker;
-                }
-            });
 
-            // Update the fetch URL to your Azure backend
-            fetch(
-                "https://jsramverk-train-adde22anbx22.azurewebsites.net/delayed"
-            )
-                .then((response) => response.json())
-                .then((result) => {
-                    this.delayedData = result.data;
-                });
-        },
+                    // Add a click event to the marker
+                    marker.on("click", () => {
+                        this.delayedData = [...this.originalDelayedData];
+
+                        const clickedTrain = this.delayedData.filter(
+                            (delayedTrain) => delayedTrain.OperationalTrainNumber === data.trainnumber
+                        );
+
+                        this.delayedData = clickedTrain;
+
+                    });
+                }
+            }
+        });
+
+        // Update the fetch URL to your Azure backend for delayedData
+        fetch(
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/delayed"
+        )
+            .then((response) => response.json())
+            .then((result) => {
+                this.delayedData = result.data;
+                this.originalDelayedData = [...result.data];
+            });
     },
+},
+
     components: {
         "render-delayed-table": RenderDelayedTable,
     },
