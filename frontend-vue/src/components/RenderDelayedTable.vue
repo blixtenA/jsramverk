@@ -10,6 +10,7 @@
             <div class="train-number">{{ item.OperationalTrainNumber }}</div>
             <div class="current-station">
                 <div>{{ item.LocationSignature }}</div>
+
                 <div>
                     {{
                         item.FromLocation
@@ -40,10 +41,18 @@
             <p v-if="selectedItem">
                 <strong>Försenad:</strong> {{ outputDelay(selectedItem) }}
             </p>
+
+            <p v-if="selectedItem">
+                <strong>Advertised Time:</strong>
+                {{ selectedItem.AdvertisedTimeAtLocation }}
+            </p>
             <form @submit.prevent="createTicket">
                 <label for="reason-code">Orsakskod</label><br />
 
-                <reason-codes></reason-codes>
+                <reason-codes
+                    v-model="selectedReason"
+                    :reasonCodes="reasonCodes"
+                ></reason-codes>
                 <br /><br />
                 <input type="submit" value="Skapa nytt ärende" />
             </form>
@@ -73,6 +82,8 @@ export default {
     methods: {
         openTicketView(item) {
             this.selectedItem = item;
+            this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
+            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
             this.showTicketView = true;
         },
         closeTicketView() {
@@ -87,6 +98,7 @@ export default {
         async createTicket() {
             // Check if a reason code is selected
             if (!this.selectedReason) {
+                // Use this.selectedReason here
                 alert("Please select a reason code.");
                 return;
             }
@@ -100,7 +112,10 @@ export default {
 
             try {
                 // Make a POST request to your backend API to create a new ticket
-                const response = await axios.post("/api/tickets", ticketData);
+                const response = await axios.post(
+                    "https://jsramverk-train-adde22anbx22.azurewebsites.net//tickets",
+                    ticketData
+                );
 
                 // Handle the successful creation of the ticket
                 const createdTicket = response.data.data;
