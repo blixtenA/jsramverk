@@ -1,72 +1,86 @@
 <template>
-  <div class="ticket-container">
-    <div class="ticket">
-      <button @click="goBack">Tillbaka</button>
-      <h1>Nytt ärende #{{ newTicketId }}</h1>
-      <h3 v-if="selectedItem && selectedItem.FromLocation">
-        Tåg från {{ selectedItem.FromLocation[0].LocationName }} till {{ selectedItem.ToLocation[0].LocationName }}. Just nu i {{ selectedItem.LocationSignature }}.
-      </h3>
-      <p v-if="selectedItem"><strong>Försenad:</strong> {{ outputDelay(selectedItem) }}</p>
-      <form @submit.prevent="createTicket">
-        <label for="reason-code">Orsakskod</label><br>
-        <select id="reason-code" v-model="selectedReason">
-          <option v-for="reasonCode in reasonCodes" :key="reasonCode.Code" :value="reasonCode.Code">{{ reasonCode.Level3Description }}</option>
-        </select><br><br>
-        <input type="submit" value="Skapa nytt ärende" />
-      </form>
+    <div class="modal-container" v-if="showModal">
+        <div class="modal" id="train-modal">
+            <!-- Rest of your modal template -->
+            <button @click="closeModal" id="back">Close Ticket</button>
+            <h1>Nytt ärende #{{ newTicketId }}</h1>
+            <h3 v-if="selectedItem && selectedItem.FromLocation">
+                Tåg från {{ selectedItem.FromLocation[0].LocationName }} till
+                {{ selectedItem.ToLocation[0].LocationName }}. Just nu i
+                {{ selectedItem.LocationSignature }}.
+            </h3>
+            <p v-if="selectedItem">
+                <strong>Försenad:</strong> {{ outputDelay(selectedItem) }}
+            </p>
+            <form @submit.prevent="createTicket">
+                <label for="reason-code">Orsakskod</label><br />
+                <select id="reason-code" v-model="selectedReason">
+                    <reason-codes></reason-codes></select
+                ><br /><br />
+                <input type="submit" value="Skapa nytt ärende" />
+            </form>
+        </div>
     </div>
-    <br>
-    <div class="old-tickets" id="old-tickets">
-      <h2>Befintliga ärenden</h2>
-      <div v-for="ticket in oldTickets" :key="ticket.id">{{ ticket.id }} - {{ ticket.code }} - {{ ticket.trainnumber }} - {{ ticket.traindate }}</div>
-    </div>
-  </div>
 </template>
 
 <script>
-import { computed } from "vue";
-import { useRouter } from "vue-router";
+import ReasonCodes from "./ReasonCodes.vue";
 
 export default {
-  name: "RenderTicketView",
-  props: {
-    selectedItem: String,
-  },
-  setup(props) {
-    const router = useRouter();
-
-    console.log("Props in child component:", props);
-
-    const parsedSelectedItem = computed(() => {
-      try {
-        return JSON.parse(props.selectedItem || "{}");
-      } catch (error) {
-        console.error("Error parsing 'selectedItem':", error);
-        return {};
-      }
-    });
-
-    const goBack = () => {
-      router.go(-1);
-    };
-
-    const outputDelay = (item) => {
-      if (item) {
-        const advertised = new Date(item.AdvertisedTimeAtLocation);
-        const estimated = new Date(item.EstimatedTimeAtLocation);
-        const diff = Math.abs(estimated - advertised);
-        return Math.floor(diff / (1000 * 60)) + " minuter";
-      }
-      return "";
-    };
-
-    return {
-      goBack,
-      outputDelay,
-      parsedSelectedItem,
-    };
-  },
+    props: {
+        showModal: Boolean,
+        selectedItem: Object,
+        newTicketId: Number,
+        selectedReason: String,
+    },
+    components: {
+        ReasonCodes,
+    },
+    methods: {
+        closeModal() {
+            this.$emit("close-modal");
+        },
+        outputDelay(item) {
+            const advertised = new Date(item.AdvertisedTimeAtLocation);
+            const estimated = new Date(item.EstimatedTimeAtLocation);
+            const diff = Math.abs(estimated - advertised);
+            return Math.floor(diff / (1000 * 60)) + " minuter";
+        },
+        createTicket() {
+            // Implement the createTicket method logic here
+        },
+    },
 };
 </script>
 
+<style>
+.modal {
+    position: fixed;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    background-color: rgba(255, 255, 255, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
 
+.modal-content {
+    padding: 20px;
+    max-width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    z-index: 10000;
+}
+
+/* Close button */
+.modal-content button {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+}
+</style>
