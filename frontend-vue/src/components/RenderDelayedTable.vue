@@ -3,13 +3,14 @@
         <div
             v-for="(item, index) in data"
             :key="index"
-            @click="openTicketView(item)"
+            @click="handleTrainItemClick(item)"
             class="train-item"
         >
             <!-- Display train information -->
             <div class="train-number">{{ item.OperationalTrainNumber }}</div>
             <div class="current-station">
                 <div>{{ item.LocationSignature }}</div>
+
                 <div>
                     {{
                         item.FromLocation
@@ -19,14 +20,18 @@
                     {{ item.ToLocation ? item.ToLocation[0].LocationName : "" }}
                 </div>
             </div>
+            <!-- Edit and Delete buttons -->
+            <button @click="openTicketView(item)">Open Errand</button>
         </div>
     </div>
 
     <!-- Full-page modal -->
     <div v-if="showTicketView" class="modal-container">
         <div class="modal" id="train-modal">
-            <!-- Rest of your template -->
+            <!-- Rest of the template -->
             <button @click="closeTicketView" id="back">Close Ticket</button>
+            <button @click="editTicket(item)">Edit</button>
+            <button @click="deleteTicket(item._id)">Delete</button>
             <h1>Nytt ärende #{{ newTicketId }}</h1>
             <h3 v-if="selectedItem && selectedItem.FromLocation">
                 Tåg från {{ selectedItem.FromLocation[0].LocationName }} till
@@ -36,17 +41,19 @@
             <p v-if="selectedItem">
                 <strong>Försenad:</strong> {{ outputDelay(selectedItem) }}
             </p>
+
+            <p v-if="selectedItem">
+                <strong>Advertised Time:</strong>
+                {{ selectedItem.AdvertisedTimeAtLocation }}
+            </p>
             <form @submit.prevent="createTicket">
                 <label for="reason-code">Orsakskod</label><br />
-                <select id="reason-code" v-model="selectedReason">
-                    <option
-                        v-for="reasonCode in reasonCodes"
-                        :key="reasonCode.Code"
-                        :value="reasonCode.Code"
-                    >
-                        {{ reasonCode.Level3Description }}
-                    </option></select
-                ><br /><br />
+
+                <reason-codes
+                    v-model="selectedReason"
+                    :reasonCodes="reasonCodes"
+                ></reason-codes>
+                <br /><br />
                 <input type="submit" value="Skapa nytt ärende" />
             </form>
         </div>
@@ -54,6 +61,9 @@
 </template>
 
 <script>
+import ReasonCodes from "./ReasonCodes.vue";
+import axios from "axios";
+
 export default {
     data() {
         return {
@@ -66,9 +76,23 @@ export default {
     props: {
         data: Array,
     },
+    components: {
+        ReasonCodes, 
+    },
+    emits: ["train-item-clicked"],
     methods: {
+        handleTrainItemClick(item) {
+            console.log("click! ");
+            console.log(item);
+            
+            const { AdvertisedTrainIdent } = item;
+            this.$emit("train-item-clicked", AdvertisedTrainIdent);
+
+        },
         openTicketView(item) {
             this.selectedItem = item;
+            this.selectedItem.trainNumber = item.OperationalTrainNumber; 
+            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation;
             this.showTicketView = true;
         },
         closeTicketView() {
@@ -80,8 +104,39 @@ export default {
             const diff = Math.abs(estimated - advertised);
             return Math.floor(diff / (1000 * 60)) + " minuter";
         },
-        createTicket() {
-            // Implement the createTicket method logic here
+        async createTicket() {
+            if (!this.selectedReason) {
+                // Use this.selectedReason here
+                alert("Please select a reason code.");
+                return;
+            }
+
+            // Create an object with the ticket data
+            const ticketData = {
+                code: this.selectedReason,
+                trainnumber: this.selectedItem.trainNumber,
+                traindate: this.selectedItem.trainDate,
+            };
+
+            try {
+                const response = await axios.post(
+                    "https://jsramverk-train-adde22anbx22.azurewebsites.net//tickets",
+                    ticketData
+                );
+
+                const createdTicket = response.data.data;
+                this.createdTicket = {
+                    code: createdTicket.code,
+                    trainnumber: createdTicket.trainnumber,
+                    traindate: createdTicket.traindate,
+                };
+
+                alert("Ticket created successfully");
+
+            } catch (error) {
+                console.error("Error creating ticket:", error);
+                alert("Error creating ticket: " + error.message);
+            }
         },
     },
 };
@@ -98,7 +153,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 999;
     border: 1px solid #ccc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
@@ -116,5 +171,9 @@ export default {
     background-color: #fff;
     border: 1px solid #ccc;
     padding: 10px 20px;
+}
+
+select {
+    width: 250px; /* Set a specific width that suits your content */
 }
 </style>
