@@ -29,6 +29,7 @@ const tickets = {
                 code: req.body.code,
                 trainnumber: req.body.trainnumber,
                 traindate: req.body.traindate,
+                activityid: req.body.activityid,
             });
 
             return res.json({
@@ -37,6 +38,7 @@ const tickets = {
                     code: req.body.code,
                     trainnumber: req.body.trainnumber,
                     traindate: req.body.traindate,
+                    activityid: req.body.activityid,
                 },
             });
         } finally {

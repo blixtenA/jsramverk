@@ -43,36 +43,43 @@ export default {
             }).addTo(map);
 
             // Update the socket connection URL to your Azure backend
-            const socket = io(
-                "https://jsramverk-train-adde22anbx22.azurewebsites.net"
-            );
+            const socket = io("http://localhost:1337");
 
             socket.on("message", (data) => {
-                if (data.trainnumber in this.markers) {
-                    let marker = this.markers[data.trainnumber];
-                    marker.setLatLng(data.position);
-                } else {
-                    const defaultIcon = L.icon({
-                        iconUrl: require("leaflet/dist/images/marker-icon.png"),
-                        iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-                        iconSize: [25, 41],
-                        iconAnchor: [12, 41],
-                        popupAnchor: [1, -34],
-                    });
+                const matchingTrain = this.delayedData.find(
+                    (item) => item.OperationalTrainNumber === data.trainnumber
+                );
 
-                    // Create a marker using the default icon and bind it to the map
-                    let marker = L.marker(data.position, { icon: defaultIcon })
-                        .bindPopup(data.trainnumber)
-                        .addTo(map);
+                if (matchingTrain) {
+                    if (data.trainnumber in this.markers) {
+                        let marker = this.markers[data.trainnumber];
+                        marker.setLatLng(data.position);
+                        console.log(
+                            `Matching train found: Train number ${data.trainnumber} is delayed.`
+                        );
+                    } else {
+                        const defaultIcon = L.icon({
+                            iconUrl: require("leaflet/dist/images/marker-icon.png"),
+                            iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                        });
 
-                    this.markers[data.trainnumber] = marker;
+                        // Create a marker using the default icon and bind it to the map
+                        let marker = L.marker(data.position, {
+                            icon: defaultIcon,
+                        })
+                            .bindPopup(data.trainnumber)
+                            .addTo(map);
+
+                        this.markers[data.trainnumber] = marker;
+                    }
                 }
             });
 
             // Update the fetch URL to your Azure backend
-            fetch(
-                "https://jsramverk-train-adde22anbx22.azurewebsites.net/delayed"
-            )
+            fetch("http://localhost:1337/delayed")
                 .then((response) => response.json())
                 .then((result) => {
                     this.delayedData = result.data;

@@ -1,4 +1,5 @@
 <template>
+    <h2>Total Delays: {{ data.length }}</h2>
     <div class="delayed-trains" ref="delayedTrains" id="delayed-trains">
         <div
             v-for="(item, index) in data"
@@ -32,7 +33,14 @@
             <button @click="closeTicketView" id="back">Close Ticket</button>
             <button @click="editTicket(item)">Edit</button>
             <button @click="deleteTicket(item._id)">Delete</button>
-            <h1>Nytt ärende #{{ newTicketId }}</h1>
+            <h1>Nytt ärende #{{ selectedItem.ActivityId }}</h1>
+            <ul v-if="selectedItem">
+                <li v-for="ticket in tickets" :key="ticket._id">
+                    <strong>Orsakskod:</strong> {{ ticket.code }}<br />
+                    <strong>Tågnummer:</strong> {{ ticket.trainnumber }}<br />
+                    <strong>Tågdatum:</strong> {{ ticket.traindate }}
+                </li>
+            </ul>
             <h3 v-if="selectedItem && selectedItem.FromLocation">
                 Tåg från {{ selectedItem.FromLocation[0].LocationName }} till
                 {{ selectedItem.ToLocation[0].LocationName }}. Just nu i
@@ -71,6 +79,8 @@ export default {
             selectedItem: null,
             selectedReason: null,
             reasonCodes: [],
+            tickets: [], // Store ticket data
+            createdTicket: null, // Declare createdTicket
         };
     },
     props: {
@@ -80,10 +90,30 @@ export default {
         ReasonCodes, // Register the ReasonCodes component here
     },
     methods: {
-        openTicketView(item) {
+        async openTicketView(item) {
             this.selectedItem = item;
             this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
             this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+            this.selectedItem.activityId = item.ActivityId;
+            this.showTicketView = true;
+            // Fetch ticket data when a ticket is opened
+            try {
+                const response = await axios.get(
+                    "https://localhost:1337/tickets"
+                );
+
+                if (response.status === 200) {
+                    this.tickets = response.data.data;
+                } else {
+                    console.error(
+                        "Failed to fetch ticket data:",
+                        response.status
+                    );
+                }
+            } catch (error) {
+                console.error("Error fetching ticket data:", error);
+            }
+
             this.showTicketView = true;
         },
         closeTicketView() {
@@ -108,33 +138,48 @@ export default {
                 code: this.selectedReason,
                 trainnumber: this.selectedItem.trainNumber,
                 traindate: this.selectedItem.trainDate,
+                activityId: this.selectedItem.activityId, // Corrected line
             };
 
+            // Log the ticketData object to the console for debugging
+            console.log("ticketData:", ticketData);
+
             try {
-                // Make a POST request to your backend API to create a new ticket
                 const response = await axios.post(
-                    "https://jsramverk-train-adde22anbx22.azurewebsites.net//tickets",
-                    ticketData
+                    "https:https://localhost:3000/tickets",
+                    ticketData,
+                    {
+                        validateStatus: function (status) {
+                            console.log("Response Status Code:", status);
+                            return status >= 200 && status < 300;
+                        },
+                    }
                 );
 
+                // Log the entire response object
+                console.log("Response Data:", response.data);
+                console.log("Response Headers:", response.headers);
+
                 // Handle the successful creation of the ticket
-                const createdTicket = response.data.data;
-
-                // Set the createdTicket property to display the created ticket details
-                this.createdTicket = {
-                    code: createdTicket.code,
-                    trainnumber: createdTicket.trainnumber,
-                    traindate: createdTicket.traindate,
-                };
-
-                // Display a success message (you can customize this message)
-                alert("Ticket created successfully");
-
-                // Optionally, you can close the ticket view or perform other actions here
+                if (response.status === 200) {
+                    // Set the createdTicket property and display a success message
+                    this.createdTicket = {
+                        code: response.data.code,
+                        trainnumber: response.data.trainnumber,
+                        traindate: response.data.traindate,
+                        activityId: response.data.activityId,
+                    };
+                    alert("Ticket created successfully");
+                } else {
+                    console.error(
+                        "Unexpected response status:",
+                        response.status
+                    );
+                    console.log("Response Data:", response.data); // Log response data
+                }
             } catch (error) {
-                // Handle errors (e.g., display an error message)
                 console.error("Error creating ticket:", error);
-                alert("Error creating ticket: " + error.message);
+                console.log("Response Data:", error.response.data); // Log response data in the case of an error
             }
         },
     },

@@ -20,6 +20,36 @@ const tickets = {
         }
     },
 
+    getTicketsByActivityId: async function getTicketsByActivityId(req, res) {
+        const client = new MongoClient(
+            `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`
+        );
+
+        try {
+            await client.connect();
+            const db = client.db("test"); // Replace with your MongoDB database name
+
+            const activityId = req.params.activityId; // Get the Activity ID from the URL parameter
+
+            // Query the database to find tickets based on the provided Activity ID
+            const tickets = await db
+                .collection("tickets")
+                .find({ ActivityId: activityId })
+                .toArray();
+
+            return res.json({
+                data: tickets,
+            });
+        } catch (error) {
+            console.error("Error fetching tickets by Activity ID:", error);
+            return res.status(500).json({
+                error: "An internal server error occurred.",
+            });
+        } finally {
+            client.close();
+        }
+    },
+
     createTicket: async function createTicket(req, res) {
         const client = new MongoClient(
             `mongodb+srv://${process.env.ATLAS_USERNAME}:${process.env.ATLAS_PASSWORD}@cluster0.ljydkel.mongodb.net/?retryWrites=true&w=majority`
@@ -31,6 +61,7 @@ const tickets = {
 
             // Get the selected error code from the request
             const selectedErrorCode = req.body.code;
+
 
             // Check if the selected error code exists in your error codes data
             // You can load the error codes data from your API or a file
