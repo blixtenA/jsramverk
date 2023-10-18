@@ -76,6 +76,7 @@ describe("Ticket API", () => {
             code: "ABC123",
             trainnumber: "12345",
             traindate: "2023-09-20",
+            activityId: "1500adde-095d-334b-08db-blablabla",
         };
 
         chai.request(app)

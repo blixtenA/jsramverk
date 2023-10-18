@@ -31,17 +31,22 @@ const tickets = {
 
             const activityId = req.params.activityId; // Get the Activity ID from the URL parameter
 
-            // Query the database to find tickets based on the provided Activity ID
-            const tickets = await db
-                .collection("tickets")
-                .find({ ActivityId: activityId })
-                .toArray();
-
-            return res.json({
-                data: tickets,
+            // Query the database to find a ticket by both _id and activityId
+            const ticket = await db.collection("tickets").findOne({
+                activityId: activityId,
             });
+
+            if (ticket) {
+                return res.json({
+                    data: [ticket], // Return the ticket as an array
+                });
+            } else {
+                return res.status(404).json({
+                    error: "Ticket not found.",
+                });
+            }
         } catch (error) {
-            console.error("Error fetching tickets by Activity ID:", error);
+            console.error("Error fetching ticket by Activity ID:", error);
             return res.status(500).json({
                 error: "An internal server error occurred.",
             });
@@ -59,44 +64,27 @@ const tickets = {
             await client.connect();
             const db = client.db("test"); // Replace with your MongoDB database name
 
-            // Get the selected error code from the request
-            const selectedErrorCode = req.body.code;
-
-
-            // Check if the selected error code exists in your error codes data
-            // You can load the error codes data from your API or a file
-            // For now, let's assume you have it loaded as an array called `errorCodes`
-            const errorCodes = [
-                // Your error codes data here
-            ];
-
-            const errorCodeExists = errorCodes.some(
-                (errorCode) => errorCode.Code === selectedErrorCode
-            );
-
-            if (!errorCodeExists) {
-                return res.status(400).json({
-                    error: "Invalid error code selected.",
-                });
-            }
-
-            // Create the ticket
+            // Process the request data and create the ticket
+            console.log("Received request data:", req.body);
             const result = await db.collection("tickets").insertOne({
-                code: selectedErrorCode,
+                code: req.body.code,
                 trainnumber: req.body.trainnumber,
                 traindate: req.body.traindate,
+                activityId: req.body.activityId, // Corrected line
             });
 
             return res.json({
                 data: {
-                    id: result.insertedId, // Use insertedId to get the generated ID
-                    code: selectedErrorCode,
+                    id: result.insertedId,
+                    code: req.body.code, // Corrected line
                     trainnumber: req.body.trainnumber,
                     traindate: req.body.traindate,
+                    activityId: req.body.activityId,
                 },
             });
         } catch (error) {
             console.error("Error creating ticket:", error);
+            // Return an error response
             return res.status(500).json({
                 error: "An internal server error occurred.",
             });
@@ -113,13 +101,16 @@ const tickets = {
             await client.connect();
             const db = client.db("test"); // Replace with your MongoDB database name
 
-            const ticketId = req.params.id; // Get the ticket ID from the URL
+            const activityId = req.params.id; // Get the activity ID from the URL
             const updatedTicketData = req.body; // Get the updated ticket data from the request body
 
-            const result = await db.collection("tickets").updateOne(
-                { _id: ObjectId(ticketId) }, // Specify the ticket to update by its ID
-                { $set: updatedTicketData } // Set the new data
-            );
+            // Update the ticket with the matching activityId
+            const result = await db
+                .collection("tickets")
+                .updateOne(
+                    { activityId: activityId },
+                    { $set: { code: updatedTicketData.code } }
+                );
 
             if (result.matchedCount === 0) {
                 return res.status(404).json({ error: "Ticket not found." });

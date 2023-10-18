@@ -14,6 +14,10 @@ if (NODE_ENV === "test") {
 
 router.get("/", (req, res) => ticketsModule.getTickets(req, res));
 
+router.get("/:activityId", (req, res) =>
+    ticketsModule.getTicketsByActivityId(req, res)
+);
+
 router.post("/", (req, res) => ticketsModule.createTicket(req, res));
 
 // PUT route to update a ticket by ID

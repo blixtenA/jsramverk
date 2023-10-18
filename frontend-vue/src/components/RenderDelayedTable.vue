@@ -99,7 +99,7 @@ export default {
             // Fetch ticket data when a ticket is opened
             try {
                 const response = await axios.get(
-                    "https://localhost:1337/tickets"
+                    `http://localhost:1337/tickets/${item.ActivityId}`
                 );
 
                 if (response.status === 200) {
@@ -118,6 +118,9 @@ export default {
         },
         closeTicketView() {
             this.showTicketView = false;
+            this.selectedItem = null; // Reset selectedItem
+            this.tickets = []; // Reset tickets
+            this.createdTicket = null; // Reset createdTicket
         },
         outputDelay(item) {
             const advertised = new Date(item.AdvertisedTimeAtLocation);
@@ -146,7 +149,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    "https:https://localhost:3000/tickets",
+                    "http://localhost:1337/tickets",
                     ticketData,
                     {
                         validateStatus: function (status) {
