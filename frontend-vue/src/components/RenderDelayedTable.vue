@@ -31,14 +31,18 @@
         <div class="modal" id="train-modal">
             <!-- Rest of your template -->
             <button @click="closeTicketView" id="back">Close Ticket</button>
-            <button @click="editTicket(item)">Edit</button>
             <button @click="deleteTicket(item._id)">Delete</button>
             <h1>Nytt ärende #{{ selectedItem.ActivityId }}</h1>
             <ul v-if="selectedItem">
                 <li v-for="ticket in tickets" :key="ticket._id">
-                    <strong>Orsakskod:</strong> {{ ticket.code }}<br />
+                    <strong>Id:</strong> {{ ticket._id }}<br />
+                    <strong>Orsakskod:</strong> {{ ticket.code }}<br /><br />
+                    <button @click="updateTicket(ticket.activityId)">
+                        Edit</button
+                    ><br /><br />
                     <strong>Tågnummer:</strong> {{ ticket.trainnumber }}<br />
                     <strong>Tågdatum:</strong> {{ ticket.traindate }}
+                    <strong>ActivityID:</strong> {{ ticket.activityId }}
                 </li>
             </ul>
             <h3 v-if="selectedItem && selectedItem.FromLocation">
@@ -90,6 +94,50 @@ export default {
         ReasonCodes, // Register the ReasonCodes component here
     },
     methods: {
+        async updateTicket(activityId) {
+            if (!this.selectedItem) {
+                return;
+            }
+
+            const updatedTicketData = {
+                _id: this.selectedItem._id,
+                code: this.selectedReason,
+                trainnumber: this.selectedItem.trainNumber,
+                traindate: this.selectedItem.trainDate,
+                activityId: this.selectedItem.activityId,
+            };
+
+            try {
+                const response = await axios.put(
+                    `http://localhost:1337/tickets/${activityId}`,
+                    updatedTicketData,
+                    {
+                        validateStatus: function (status) {
+                            console.log("Response Status Code:", status);
+                            return status >= 200 && status < 300;
+                        },
+                    }
+                );
+
+                console.log("Response Data:", response.data);
+                console.log("Response Headers:", response.headers);
+
+                if (response.status === 200) {
+                    alert("Ticket updated successfully");
+                    await this.openTicketView(this.selectedItem);
+                } else {
+                    console.error(
+                        "Unexpected response status:",
+                        response.status
+                    );
+                    console.log("Response Data:", response.data);
+                }
+            } catch (error) {
+                console.error("Error updating ticket:", error);
+                console.log("Response Data:", error.response.data);
+            }
+        },
+
         async openTicketView(item) {
             this.selectedItem = item;
             this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
@@ -166,6 +214,8 @@ export default {
                 // Handle the successful creation of the ticket
                 if (response.status === 200) {
                     // Set the createdTicket property and display a success message
+                    await this.openTicketView(this.selectedItem);
+
                     this.createdTicket = {
                         code: response.data.code,
                         trainnumber: response.data.trainnumber,

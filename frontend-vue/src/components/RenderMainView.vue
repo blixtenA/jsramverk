@@ -54,9 +54,6 @@ export default {
                     if (data.trainnumber in this.markers) {
                         let marker = this.markers[data.trainnumber];
                         marker.setLatLng(data.position);
-                        console.log(
-                            `Matching train found: Train number ${data.trainnumber} is delayed.`
-                        );
                     } else {
                         const defaultIcon = L.icon({
                             iconUrl: require("leaflet/dist/images/marker-icon.png"),

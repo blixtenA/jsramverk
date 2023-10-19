@@ -101,16 +101,25 @@ const tickets = {
             await client.connect();
             const db = client.db("test"); // Replace with your MongoDB database name
 
-            const activityId = req.params.id; // Get the activity ID from the URL
-            const updatedTicketData = req.body; // Get the updated ticket data from the request body
+            const activityId = req.params.activityId; // Get the activity ID from the URL
+            const receivedData = req.body;
 
-            // Update the ticket with the matching activityId
-            const result = await db
-                .collection("tickets")
-                .updateOne(
-                    { activityId: activityId },
-                    { $set: { code: updatedTicketData.code } }
-                );
+            console.log(receivedData);
+            const updatedTicketData = {
+                id: receivedData.id,
+                code: receivedData.code,
+                trainnumber: receivedData.trainnumber,
+                traindate: receivedData.traindate,
+                activityId: receivedData.activityId,
+            };
+
+            console.log("Received id for update:", activityId); // Log the _id value
+            console.log("Received update data:", updatedTicketData); // Log the update data
+
+            const result = await db.collection("tickets").updateOne(
+                { activityId: activityId }, // Use the correct field to find the document
+                { $set: { code: updatedTicketData.code } } // Specify the field to update
+            );
 
             if (result.matchedCount === 0) {
                 return res.status(404).json({ error: "Ticket not found." });
