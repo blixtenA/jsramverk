@@ -2,28 +2,28 @@
     <h2>Total Delays: {{ data.length }}</h2>
     <div class="delayed-trains" ref="delayedTrains" id="delayed-trains">
         <div
-            v-for="(item, index) in data"
-            :key="index"
-            @click="openTicketView(item)"
-            class="train-item"
-        >
-            <!-- Display train information -->
-            <div class="train-number">{{ item.OperationalTrainNumber }}</div>
-            <div class="current-station">
-                <div>{{ item.LocationSignature }}</div>
-
-                <div>
-                    {{
-                        item.FromLocation
-                            ? item.FromLocation[0].LocationName + " -> "
-                            : ""
-                    }}
-                    {{ item.ToLocation ? item.ToLocation[0].LocationName : "" }}
-                </div>
-            </div>
-            <!-- Edit and Delete buttons -->
-            <button @click="openTicketView(item)">Open Errand</button>
+      v-for="(item, index) in data"
+      :key="index"
+      class="train-item"
+      @click="sendTrainNumber(item.trainnumber)"
+    >
+        <!-- Display train information -->
+        <div class="train-number">{{ item.trainnumber }}</div>
+        <div class="current-station" @click="sendTrainNumber(item.trainnumber)">
+          <!-- Click here to send the train number -->
+          <div>{{ item.LocationSignature }}</div>
+          <div>
+            {{
+              item.FromLocation
+                ? item.FromLocation[0].LocationName + " -> "
+                : ""
+            }}
+            {{ item.ToLocation ? item.ToLocation[0].LocationName : "" }}
+          </div>
         </div>
+        <!-- Edit and Delete buttons -->
+        <button @click="openTicketView(item)">Open Errand</button>
+      </div>
     </div>
 
     <!-- Full-page modal -->
@@ -90,10 +90,16 @@ export default {
     props: {
         data: Array,
     },
+    emits: ["train-number-selected"],
     components: {
-        ReasonCodes, // Register the ReasonCodes component here
+        ReasonCodes,
     },
     methods: {
+        /* Emit an event to send the train number to the map view */
+        sendTrainNumber(trainnumber) {
+            this.$emit("train-number-selected", trainnumber);
+        },
+
         async updateTicket(activityId) {
             if (!this.selectedItem) {
                 return;

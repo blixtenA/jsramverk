@@ -3,7 +3,10 @@
         <div class="delayed">
             <h1>Försenade tåg</h1>
             <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
-            <render-delayed-table :data="delayedData"></render-delayed-table>
+            <render-delayed-table 
+                :data="delayedData"
+                @train-number-selected="handleTrainNumberSelected">
+            </render-delayed-table>
         </div>
         <div class="map" ref="map"></div>
     </div>
@@ -17,74 +20,113 @@ import RenderDelayedTable from "./RenderDelayedTable.vue";
 import "../../public/style.css";
 
 export default {
-    data() {
-        return {
-            markers: {},
-            delayedData: [],
-        };
-    },
-    mounted() {
-        this.renderMainView();
-    },
-    methods: {
-        renderMainView() {
-            const container = this.$refs.mainDelayedTrains;
-            container.innerHTML = "";
+  data() {
+    return {
+      markersMap: new Map(),
+      delayedData: [],
+      selectedTrainNumber: null,
+      map: null,
+    };
+  },
+  mounted() {
+    this.renderMainView();
+  },
+  methods: {
+    renderMainView() {
+      const container = this.$refs.mainDelayedTrains;
+      container.innerHTML = "";
 
-            const map = L.map(this.$refs.map).setView(
-                [62.173276, 14.942265],
-                5
-            );
+      const map = L.map(this.$refs.map).setView([62.173276, 14.942265], 5);
+      this.map = map;
 
-            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                maxZoom: 19,
-                attribution:
-                    '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            }).addTo(map);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
 
-            // Update the socket connection URL to your Azure backend
-            const socket = io("http://localhost:1337");
+      const socket = io("http://localhost:1337");
 
-            socket.on("message", (data) => {
-                const matchingTrain = this.delayedData.find(
-                    (item) => item.OperationalTrainNumber === data.trainnumber
-                );
+      socket.on("message", (data) => {
+        const trainnumber = data.trainnumber;
 
-                if (matchingTrain) {
-                    if (data.trainnumber in this.markers) {
-                        let marker = this.markers[data.trainnumber];
-                        marker.setLatLng(data.position);
-                    } else {
-                        const defaultIcon = L.icon({
-                            iconUrl: require("leaflet/dist/images/marker-icon.png"),
-                            iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-                            iconSize: [25, 41],
-                            iconAnchor: [12, 41],
-                            popupAnchor: [1, -34],
-                        });
-
-                        // Create a marker using the default icon and bind it to the map
-                        let marker = L.marker(data.position, {
-                            icon: defaultIcon,
-                        })
-                            .bindPopup(data.trainnumber)
-                            .addTo(map);
-
-                        this.markers[data.trainnumber] = marker;
-                    }
-                }
+        /* Update markers and data for the selected train number */
+        if (this.selectedTrainNumber === null || this.selectedTrainNumber === trainnumber) {
+          if (this.markersMap.has(trainnumber)) {
+            const marker = this.markersMap.get(trainnumber);
+            marker.setLatLng(data.position);
+          } else {
+            const defaultIcon = L.icon({
+              iconUrl: require("leaflet/dist/images/marker-icon.png"),
+              iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
             });
 
-            // Update the fetch URL to your Azure backend
-            fetch("http://localhost:1337/delayed")
-                .then((response) => response.json())
-                .then((result) => {
-                    this.delayedData = result.data;
-                });
-        },
+            const marker = L.marker(data.position, {
+              icon: defaultIcon,
+            })
+              .bindPopup(trainnumber)
+              .addTo(map);
+
+            marker.on("click", () => {
+              /* When a marker is clicked, set the selected train number */
+              this.selectedTrainNumber = trainnumber;
+
+              /* Filter the delayedData array based on the selected train number */
+              this.delayedData = this.delayedData.filter(
+                (item) => item.trainnumber === this.selectedTrainNumber
+              );
+
+              /* Remove markers for non-selected train numbers from map */
+              this.markersMap.forEach((marker, num) => {
+                if (num !== this.selectedTrainNumber) {
+                  map.removeLayer(marker);
+                  this.markersMap.delete(num);
+                }
+              });
+            });
+
+            /* Store the marker in markersMap */
+            this.markersMap.set(trainnumber, marker);
+          }
+
+          const dataIndex = this.delayedData.findIndex(
+            (item) => item.trainnumber === trainnumber
+          );
+
+          if (dataIndex !== -1) {
+            Object.assign(this.delayedData[dataIndex], data);
+          } else {
+            this.delayedData.push(data);
+          }
+        }
+      });
     },
-    components: {
-        "render-delayed-table": RenderDelayedTable,
+
+    handleTrainNumberSelected(trainnumber) {
+      this.selectedTrainNumber = trainnumber;
+
+    /* Filter the array based on the selected train number */
+    this.delayedData = this.delayedData.filter(
+        (item) => item.trainnumber === this.selectedTrainNumber
+    );
+
+    /* Remove markers for non-selected train numbers from map */
+    this.markersMap.forEach((marker, num) => {
+        if (num !== this.selectedTrainNumber) {
+        this.map.removeLayer(marker);
+        this.markersMap.delete(num);
+        }
+    });
     },
+  },
+
+  components: {
+    "render-delayed-table": RenderDelayedTable,
+  },
 };
 </script>
+
+    

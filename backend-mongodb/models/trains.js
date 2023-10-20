@@ -3,11 +3,17 @@ const EventSource = require("eventsource");
 require("dotenv").config();
 const delayed = require("./delayed_filter.js");
 
+const delayedTrainsMap = new Map();
+
 async function fetchTrainPositions(io) {
     try {
         const delayedNumbersURL = "http://localhost:1337/delayed";
         const delayedNumbersResponse = await fetch(delayedNumbersURL);
         const delayedNumbers = await delayedNumbersResponse.json();
+
+        delayedNumbers.data.forEach((data) => {
+            delayedTrainsMap.set(data.OperationalTrainNumber, data);
+        });
 
         console.log(delayedNumbers.data.slice(0, 5));
 
@@ -68,27 +74,30 @@ async function fetchTrainPositions(io) {
                             .map((t) => parseFloat(t))
                             .reverse();
 
-                        const trainObject = {
-                            trainnumber:
-                                changedPosition.Train.AdvertisedTrainNumber,
-                            position: position,
-                            timestamp: changedPosition.TimeStamp,
-                            bearing: changedPosition.Bearing,
-                            status: !changedPosition.Deleted,
-                            speed: changedPosition.Speed,
-                        };
-
-                        if (
-                            trainPositions.hasOwnProperty(
-                                changedPosition.Train.AdvertisedTrainNumber
-                            )
-                        ) {
+                            const trainNumber =
+                            changedPosition.Train.AdvertisedTrainNumber;
+    
+                        if (delayedTrainsMap.has(trainNumber)) {
+                            const delayedData = delayedTrainsMap.get(trainNumber);
+    
+                            const trainObject = {
+                                /* Data from position object */
+                                trainnumber: trainNumber,
+                                position: position,
+                                timestamp: changedPosition.TimeStamp,
+                                bearing: changedPosition.Bearing,
+                                status: !changedPosition.Deleted,
+                                speed: changedPosition.Speed,
+                                /* Data from the delayed object */
+                                FromLocation: delayedData.FromLocation,
+                                ToLocation: delayedData.ToLocation,
+                                LocationSignature: delayedData.LocationSignature,
+                            };
+    
                             socket.emit("message", trainObject);
+    
+                            trainPositions[trainNumber] = trainObject;
                         }
-
-                        trainPositions[
-                            changedPosition.Train.AdvertisedTrainNumber
-                        ] = trainObject;
                     }
                 } catch (e) {
                     console.log(e);
