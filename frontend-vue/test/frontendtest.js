@@ -31,7 +31,9 @@ const browser = new Builder()
 
 console.log("WebDriver instance created");
 
-const targetURL = "https://www.student.bth.se/~anbx22/editor/#/";
+
+//const targetURL = "https://www.student.bth.se/~anbx22/editor/#/";
+const targetURL = "http://localhost:8080";
 
 describe("Test Suite", function () {
     function goToNavLink(target) {
@@ -80,14 +82,8 @@ describe("Test Suite", function () {
     });
 
     it("Test index", function (done) {
-        let promise = browser.getTitle();
-
-        promise.then(function (title) {
-            assert.equal(title, "Multipage");
-        });
-
         browser.getTitle().then(function (title) {
-            assert.equal(title, "Multipage");
+            assert.equal(title, "Train controller", "Page title should match 'Train controller'");
         });
 
         assertH1("Home");
@@ -106,6 +102,40 @@ describe("Test Suite", function () {
         done();
     });
 
+    it("should count the number of markers = 1 after clicking and assert same train nr", async function () {
+        // Simulate clicking the first delay (should be at least one, because Sweden)
+        console.log("Locating .train-number element...");
+        
+        const firstDelayedItem = await browser.wait(
+            until.elementLocated(By.css(".train-number")),
+            10000
+        );
+        
+        console.log(".train-number element located. Clicking...");
+        
+        await browser.wait(until.elementIsEnabled(firstDelayedItem), 10000); // Wait for element to be clickable
+        await firstDelayedItem.click();
+
+        const markerSelector = By.css(".leaflet-marker-icon");
+        const markerElements = await browser.findElements(markerSelector);
+        const markerCount = markerElements.length;
+
+        assert.equal(markerCount, 1, 'Expected 1 marker after the click');
+        console.log(`Number of markers on the map after click: ${markerCount}`);
+
+        // Get the train number from the clicked item
+        const clickedItemTrainNumber = await firstDelayedItem.getText();
+
+        const leafletMarker = await browser.findElement(By.css(".leaflet-marker-icon"));
+
+        // Extract the train number from the Leaflet
+        const trainNumberFromMarker = await browser.executeScript(function (marker) {
+            return marker.dataset.trainnumber || null;
+        }, leafletMarker);
+
+        assert.equal(clickedItemTrainNumber, trainNumberFromMarker, 'Train numbers should match');
+    });
+
     it("should open the ticket view when clicking a delayed item", async function () {
         // Simulate clicking the first delay (should be at least one, because Sweden)
         console.log("Locating .train-number element...");
@@ -114,9 +144,9 @@ describe("Test Suite", function () {
             10000
         );
 
-        console.log(".train-number element located. Clicking...");
-        await browser.wait(until.elementIsEnabled(firstDelayedItem), 10000); // Wait for element to be clickable
-        await firstDelayedItem.click();
+        /* Swap the modal to a button from a post in the list */ 
+        const openErrandButton = await browser.findElement(By.xpath('//button[text()="Open Errand"]'));
+        await openErrandButton.click();
 
         // Wait for the ticket view container to be visible
         console.log("Waiting for ticket view container to be visible...");
@@ -135,9 +165,54 @@ describe("Test Suite", function () {
         );
 
         // asserts
-        console.log("Asserting elements...");
         assert.isTrue(await ticketTitle.isDisplayed());
         assert.isTrue(await backButton.isDisplayed());
+    });
+
+    it("should refresh the page", async function () {
+        console.log("refreshing");
+        await browser.navigate().refresh();
+    });
+
+    it("Map element displays and markers are filtered when clicking a marker on the map", async function () {
+        await browser.sleep(5000); 
+
+        /* Check that we have a map */
+        const mapSelector = By.css('.map');
+        const mapElement = await browser.findElement(mapSelector);
+        assert.isTrue(await mapElement.isDisplayed(), 'Map element should be displayed');
+
+        /* Get marker data-trainnumber */
+        const markerDataTrainNumbers = await browser.executeScript(function () {
+            const markers = document.querySelectorAll('.leaflet-marker-icon[data-trainnumber]');
+            const trainNumbers = [];
+            markers.forEach(function (marker) {
+                trainNumbers.push(marker.getAttribute('data-trainnumber'));
+            });
+            return trainNumbers;
+        });
+
+        /* Simulate clicking the first marker */
+        const markerIndex = 0;
+        await browser.executeScript(function (index) {
+            const markers = document.querySelectorAll('.leaflet-marker-icon[data-trainnumber]');
+            markers[index].click();
+        }, markerIndex);
+
+        await browser.sleep(2000);
+
+        /* Get marker data-trainnumber after click */
+        const markerDataAfter = await browser.executeScript(function () {
+            const markers = document.querySelectorAll('.leaflet-marker-icon[data-trainnumber]');
+            const trainNumbers = [];
+            markers.forEach(function (marker) {
+                trainNumbers.push(marker.getAttribute('data-trainnumber'));
+            });
+            return trainNumbers;
+        });
+
+        assert.equal(markerDataAfter.length, 1, 'Expected 1 marker after the click');
+        assert.equal(markerDataAfter[0], markerDataTrainNumbers[markerIndex], 'Clicked marker trainNumber should match');
     });
 
     after(async function () {

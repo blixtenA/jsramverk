@@ -66,9 +66,14 @@ export default {
 
             const marker = L.marker(data.position, {
               icon: defaultIcon,
+              className: 'leaflet-marker'
             })
               .bindPopup(trainnumber)
               .addTo(map);
+
+              console.log(marker);
+
+            marker._icon.dataset.trainnumber = trainnumber;
 
             marker.on("click", () => {
               /* When a marker is clicked, set the selected train number */
