@@ -29,7 +29,6 @@ export default {
             .then((response) => response.json())
             .then((data) => {
                 this.reasonCodes = data.data;
-                // Assuming you want to pre-select the first option, you can set selectedReason here:
                 if (this.reasonCodes.length > 0) {
                     this.selectedReason = this.reasonCodes[0].Code;
                     this.selectedReason = this.reasonCodes[0].Level1Description;

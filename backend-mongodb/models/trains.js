@@ -10,11 +10,39 @@ async function fetchTrainPositions(io) {
         const delayedNumbersResponse = await fetch(delayedNumbersURL);
         const delayedNumbers = await delayedNumbersResponse.json();
 
+        const stationsURL = "http://localhost:1337/stations";
+        const stationsResponse = await fetch(stationsURL);
+        const stations = await stationsResponse.json();
+
+
+        const stationsData = stations.data || [];
+
+        // Transform the stations array into an object with LocationSignature as keys
+        const stationsObject = {};
+        
+        stationsData.forEach(station => {
+            stationsObject[station.LocationSignature] = station.AdvertisedLocationName;
+        });
+        
+        function translateStationSignature(signature) {
+            const translatedName = stationsObject[signature];
+            
+            if (translatedName) {
+                console.log(`Translating signature: ${signature}`);
+                console.log(`Found station: ${translatedName}`);
+                return translatedName;
+            } else {
+                console.log(`Translating signature: ${signature}`);
+                console.log("Station not found");
+                return signature;
+            }
+        }
+
         delayedNumbers.data.forEach((data) => {
             delayedTrainsMap.set(data.OperationalTrainNumber, data);
         });
 
-        console.log(delayedNumbers.data.slice(0, 5));
+//        console.log(delayedNumbers.data.slice(0, 5));
 
         const filters = delayedNumbers.data.map(
             (data) =>
@@ -80,6 +108,13 @@ async function fetchTrainPositions(io) {
                             const delayedData =
                                 delayedTrainsMap.get(trainNumber);
 
+                            console.log("delayedData structure:", delayedData);
+                            console.log("FromLocation:", delayedData.FromLocation);
+                            console.log("ToLocation:", delayedData.ToLocation);
+                            console.log("signature:", delayedData.LocationSignature);
+                            console.log("FromLocation[0].LocationName:", delayedData.FromLocation[0].LocationName);
+                            console.log("ToLocation[0].LocationName:", delayedData.ToLocation[0].LocationName);
+
                             const trainObject = {
                                 activityId: delayedData.ActivityId,
                                 trainnumber: trainNumber,
@@ -88,13 +123,16 @@ async function fetchTrainPositions(io) {
                                 bearing: changedPosition.Bearing,
                                 status: !changedPosition.Deleted,
                                 speed: changedPosition.Speed,
-                                FromLocation: delayedData.FromLocation,
-                                ToLocation: delayedData.ToLocation,
-                                LocationSignature:
-                                    delayedData.LocationSignature,
+                                FromLocation: translateStationSignature(delayedData.FromLocation[0].LocationName),
+                                ToLocation: translateStationSignature(delayedData.ToLocation[0].LocationName),
+                                LocationSignature: translateStationSignature(delayedData.LocationSignature),
+//                                FromLocation: delayedData.FromLocation,
+//                                ToLocation: delayedData.ToLocation,
+//                                LocationSignature:
+//                                    delayedData.LocationSignature,
                                 AdvertisedTimeAtLocation:
                                     delayedData.AdvertisedTimeAtLocation,
-                                EstimatedTimeAtLocation:
+                                    EstimatedTimeAtLocation:
                                     delayedData.EstimatedTimeAtLocation,
                             };
 

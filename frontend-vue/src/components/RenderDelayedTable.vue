@@ -16,12 +16,8 @@
                 <!-- Click here to send the train number -->
                 <div>{{ item.LocationSignature }}</div>
                 <div>
-                    {{
-                        item.FromLocation
-                            ? item.FromLocation[0].LocationName + " -> "
-                            : ""
-                    }}
-                    {{ item.ToLocation ? item.ToLocation[0].LocationName : "" }}
+                    {{ item.FromLocation ? item.FromLocation + " -> " : "" }}
+                    {{ item.ToLocation ? item.ToLocation : "" }}
                 </div>
             </div>
             <!-- Edit and Delete buttons -->
@@ -51,8 +47,8 @@
                 </li>
             </ul>
             <h3 v-if="selectedItem && selectedItem.FromLocation">
-                Tåg från {{ selectedItem.FromLocation[0].LocationName }} till
-                {{ selectedItem.ToLocation[0].LocationName }}. Just nu i
+                Tåg från {{ selectedItem.FromLocation }} till
+                {{ selectedItem.ToLocation }}. Just nu i
                 {{ selectedItem.LocationSignature }}.
             </h3>
             <p v-if="selectedItem">
@@ -100,6 +96,9 @@ export default {
         ReasonCodes,
     },
     methods: {
+        logItem() {
+            console.log("Current Item:", this.item);
+        },
         /* Emit an event to send the train number to the map view */
         sendTrainNumber(trainnumber) {
             this.$emit("train-number-selected", trainnumber);

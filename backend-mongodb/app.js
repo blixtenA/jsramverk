@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const fetchTrainPositions = require("./models/trains.js");
 const delayed = require("./routes/delayed.js");
 const tickets = require("./routes/tickets.js");
+const stations = require("./routes/stations.js");
 const codes = require("./routes/codes.js");
 const delayedF = require("./routes/delayed_filter.js");
 
@@ -32,10 +33,12 @@ const io = require("socket.io")(httpServer, {
             "https://jsramverk-train-adde22anbx22.azurewebsites.net/codes",
             "https://jsramverk-train-adde22anbx22.azurewebsites.net/trains",
             "https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets",
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/stations",
             "https://jsramverk-train-adde22anbx22.azurewebsites.net/",
             "http://localhost:8081",
             "http://localhost:1337/delayed",
             "http://localhost:1337/tickets",
+            "http://localhost:1337/stations",
             "http://localhost:1337",
             "http://localhost:1337/delayedFiltered",
             "http://localhost:8081",
@@ -55,6 +58,7 @@ app.get("/", (req, res) => {
 app.use("/delayed", delayed);
 app.use("/tickets", tickets);
 app.use("/codes", codes);
+app.use("/stations", stations);
 app.use("/delayedFilter", delayedF);
 
 httpServer.listen(port, () => {

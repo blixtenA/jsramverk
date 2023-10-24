@@ -71,8 +71,6 @@ export default {
               .bindPopup(trainnumber)
               .addTo(map);
 
-              console.log(marker);
-
             marker._icon.dataset.trainnumber = trainnumber;
 
             marker.on("click", () => {
