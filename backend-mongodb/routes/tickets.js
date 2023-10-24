@@ -24,6 +24,8 @@ router.post("/", (req, res) => ticketsModule.createTicket(req, res));
 router.put("/:activityId", (req, res) => ticketsModule.updateTicket(req, res));
 
 // DELETE route to delete a ticket by ID
-router.delete("/:id", (req, res) => ticketsModule.deleteTicket(req, res));
+router.delete("/:activityId", (req, res) =>
+    ticketsModule.deleteTicket(req, res)
+);
 
 module.exports = router;

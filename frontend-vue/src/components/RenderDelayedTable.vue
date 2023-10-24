@@ -2,28 +2,31 @@
     <h2>Total Delays: {{ data.length }}</h2>
     <div class="delayed-trains" ref="delayedTrains" id="delayed-trains">
         <div
-      v-for="(item, index) in data"
-      :key="index"
-      class="train-item"
-      @click="sendTrainNumber(item.trainnumber)"
-    >
-        <!-- Display train information -->
-        <div class="train-number">{{ item.trainnumber }}</div>
-        <div class="current-station" @click="sendTrainNumber(item.trainnumber)">
-          <!-- Click here to send the train number -->
-          <div>{{ item.LocationSignature }}</div>
-          <div>
-            {{
-              item.FromLocation
-                ? item.FromLocation[0].LocationName + " -> "
-                : ""
-            }}
-            {{ item.ToLocation ? item.ToLocation[0].LocationName : "" }}
-          </div>
+            v-for="(item, index) in data"
+            :key="index"
+            class="train-item"
+            @click="sendTrainNumber(item.trainnumber)"
+        >
+            <!-- Display train information -->
+            <div class="train-number">{{ item.trainnumber }}</div>
+            <div
+                class="current-station"
+                @click="sendTrainNumber(item.trainnumber)"
+            >
+                <!-- Click here to send the train number -->
+                <div>{{ item.LocationSignature }}</div>
+                <div>
+                    {{
+                        item.FromLocation
+                            ? item.FromLocation[0].LocationName + " -> "
+                            : ""
+                    }}
+                    {{ item.ToLocation ? item.ToLocation[0].LocationName : "" }}
+                </div>
+            </div>
+            <!-- Edit and Delete buttons -->
+            <button @click="openTicketView(item)">Open Errand</button>
         </div>
-        <!-- Edit and Delete buttons -->
-        <button @click="openTicketView(item)">Open Errand</button>
-      </div>
     </div>
 
     <!-- Full-page modal -->
@@ -31,8 +34,10 @@
         <div class="modal" id="train-modal">
             <!-- Rest of your template -->
             <button @click="closeTicketView" id="back">Close Ticket</button>
-            <button @click="deleteTicket(item._id)">Delete</button>
-            <h1>Nytt ärende #{{ selectedItem.ActivityId }}</h1>
+            <button @click="deleteTicket(selectedItem.activityId)">
+                Delete
+            </button>
+            <h1>Nytt ärende #{{ selectedItem.activityId }}</h1>
             <ul v-if="selectedItem">
                 <li v-for="ticket in tickets" :key="ticket._id">
                     <strong>Id:</strong> {{ ticket._id }}<br />
@@ -100,6 +105,33 @@ export default {
             this.$emit("train-number-selected", trainnumber);
         },
 
+        async deleteTicket(activityId) {
+            if (!this.selectedItem) {
+                return;
+            }
+
+            try {
+                const response = await axios.delete(
+                    `http://localhost:1337/tickets/${activityId}`
+                );
+
+                if (response.status === 200) {
+                    alert("Ticket deleted successfully");
+                    // Reload the list of tickets after deletion
+                    window.location.reload(); // Refresh the page
+                } else {
+                    console.error(
+                        "Unexpected response status:",
+                        response.status
+                    );
+                    console.log("Response Data:", response.data);
+                }
+            } catch (error) {
+                console.error("Error deleting ticket:", error);
+                console.log("Response Data:", error.response.data);
+            }
+        },
+
         async updateTicket(activityId) {
             if (!this.selectedItem) {
                 return;
@@ -148,12 +180,12 @@ export default {
             this.selectedItem = item;
             this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
             this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
-            this.selectedItem.activityId = item.ActivityId;
+            this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
             // Fetch ticket data when a ticket is opened
             try {
                 const response = await axios.get(
-                    `http://localhost:1337/tickets/${item.ActivityId}`
+                    `http://localhost:1337/tickets/${item.activityId}`
                 );
 
                 if (response.status === 200) {
@@ -175,6 +207,7 @@ export default {
             this.selectedItem = null; // Reset selectedItem
             this.tickets = []; // Reset tickets
             this.createdTicket = null; // Reset createdTicket
+            window.location.reload(); // Refresh the pages
         },
         outputDelay(item) {
             const advertised = new Date(item.AdvertisedTimeAtLocation);

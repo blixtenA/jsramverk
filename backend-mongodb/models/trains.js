@@ -1,7 +1,6 @@
 const fetch = require("node-fetch");
 const EventSource = require("eventsource");
 require("dotenv").config();
-const delayed = require("./delayed_filter.js");
 
 const delayedTrainsMap = new Map();
 
@@ -74,28 +73,33 @@ async function fetchTrainPositions(io) {
                             .map((t) => parseFloat(t))
                             .reverse();
 
-                            const trainNumber =
+                        const trainNumber =
                             changedPosition.Train.AdvertisedTrainNumber;
-    
+
                         if (delayedTrainsMap.has(trainNumber)) {
-                            const delayedData = delayedTrainsMap.get(trainNumber);
-    
+                            const delayedData =
+                                delayedTrainsMap.get(trainNumber);
+
                             const trainObject = {
-                                /* Data from position object */
+                                activityId: delayedData.ActivityId,
                                 trainnumber: trainNumber,
                                 position: position,
                                 timestamp: changedPosition.TimeStamp,
                                 bearing: changedPosition.Bearing,
                                 status: !changedPosition.Deleted,
                                 speed: changedPosition.Speed,
-                                /* Data from the delayed object */
                                 FromLocation: delayedData.FromLocation,
                                 ToLocation: delayedData.ToLocation,
-                                LocationSignature: delayedData.LocationSignature,
+                                LocationSignature:
+                                    delayedData.LocationSignature,
+                                AdvertisedTimeAtLocation:
+                                    delayedData.AdvertisedTimeAtLocation,
+                                EstimatedTimeAtLocation:
+                                    delayedData.EstimatedTimeAtLocation,
                             };
-    
+
                             socket.emit("message", trainObject);
-    
+
                             trainPositions[trainNumber] = trainObject;
                         }
                     }

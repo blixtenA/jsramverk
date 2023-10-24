@@ -145,10 +145,10 @@ const tickets = {
             await client.connect();
             const db = client.db("test"); // Replace with your MongoDB database name
 
-            const ticketId = req.params.id; // Get the ticket ID from the URL
+            const activityId = req.params.activityId; // Get the ticket ID from the URL
 
             const result = await db.collection("tickets").deleteOne(
-                { _id: ObjectId(ticketId) } // Specify the ticket to delete by its ID
+                { activityId: activityId } // Specify the ticket to delete by its activity Id
             );
 
             if (result.deletedCount === 0) {
