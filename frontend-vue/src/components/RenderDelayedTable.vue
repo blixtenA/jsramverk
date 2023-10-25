@@ -216,14 +216,9 @@ export default {
                                     item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
                                 this.selectedItem.activityId = item.activityId;
                                 this.showTicketView = true;
-                            } else {
-                                console.error(
-                                    "Failed to fetch ticket data:",
-                                    response.status
-                                );
                             }
                         } catch (error) {
-                            console.error("Error fetching ticket data:", error);
+                            console.error("No ticket have been created yet");
                         }
                     }
                 }

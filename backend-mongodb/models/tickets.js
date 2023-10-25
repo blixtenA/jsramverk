@@ -41,8 +41,8 @@ const tickets = {
                     data: [ticket], // Return the ticket as an array
                 });
             } else {
-                return res.status(404).json({
-                    error: "Ticket not found.",
+                return res.json({
+                    data: [], // Return an empty array if no ticket is found
                 });
             }
         } catch (error) {
