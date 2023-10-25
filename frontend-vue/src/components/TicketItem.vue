@@ -1,26 +1,13 @@
 <template>
-    <h2>Total Delays: {{ data.length }}</h2>
-    <div class="delayed-trains" ref="delayedTrains" id="delayed-trains">
-        <div
-            v-for="(item, index) in data"
-            :key="index"
-            class="train-item"
-            @click="sendTrainNumber(item.trainnumber)"
-        >
-            <!-- Display train information -->
-            <div class="train-number">{{ item.trainnumber }}</div>
-            <div
-                class="current-station"
-                @click="sendTrainNumber(item.trainnumber)"
-            >
-                <!-- Click here to send the train number -->
-                <div>{{ item.LocationSignature }}</div>
-                <div>
-                    {{ item.FromLocation ? item.FromLocation + " -> " : "" }}
-                    {{ item.ToLocation ? item.ToLocation : "" }}
-                </div>
-            </div>
-            <!-- Edit and Delete buttons -->
+    <div v-for="(item, index) in data" :key="index" class="Ticket-item">
+        <div><strong>Id:</strong> {{ item._id }}</div>
+        <div v-if="item.activityId">
+            <strong>ActivityId:</strong> {{ item.activityId }}
+        </div>
+        <div><strong>Orsakskod:</strong> {{ item.code }}</div>
+        <div><strong>Tågnummer:</strong> {{ item.trainnumber }}</div>
+        <div><strong>Tågdatum:</strong> {{ item.traindate }}</div>
+        <div>
             <button @click="openTicketView(item)">Open Errand</button>
         </div>
     </div>
@@ -31,7 +18,9 @@
             <!-- Rest of your template -->
             <button @click="closeTicketView" id="back">Close Ticket</button>
 
-            <h1>Nytt ärende #{{ selectedItem.activityId }}</h1>
+            <h1 v-if="selectedItem && selectedItem.activityId">
+                Nytt ärende #{{ selectedItem.activityId }}
+            </h1>
             <ul v-if="selectedItem">
                 <li v-for="ticket in tickets" :key="ticket._id">
                     <strong>Id:</strong> {{ ticket._id }}<br />
@@ -39,28 +28,17 @@
                     <button @click="updateTicket(ticket.activityId)">
                         Edit</button
                     ><br /><br />
-                    <button @click="deleteTicket(selectedItem.activityId)">
+                    <button @click="deleteTicket(ticket.activityId)">
                         Delete
                     </button>
                     <br /><br />
-                    <strong>Tågnummer:</strong> {{ ticket.trainnumber
-                    }}<br /><br />
-                    <strong>Tågdatum:</strong> {{ ticket.traindate }}<br />
+                    <strong>Tågnummer:</strong> {{ ticket.trainnumber }}
+                    <br /><br />
+                    <strong>Tågdatum:</strong> {{ ticket.traindate }}
+                    <br />
                 </li>
             </ul>
-            <h3 v-if="selectedItem && selectedItem.FromLocation">
-                Tåg från {{ selectedItem.FromLocation }} till
-                {{ selectedItem.ToLocation }}. Just nu i
-                {{ selectedItem.LocationSignature }}.
-            </h3>
-            <p v-if="selectedItem">
-                <strong>Försenad:</strong> {{ outputDelay(selectedItem) }}
-            </p>
 
-            <p v-if="selectedItem">
-                <strong>Advertised Time:</strong>
-                {{ selectedItem.AdvertisedTimeAtLocation }}
-            </p>
             <form @submit.prevent="createTicket">
                 <label for="reason-code">Orsakskod</label><br />
                 <reason-codes
@@ -82,7 +60,6 @@
 <script>
 import ReasonCodes from "./ReasonCodes.vue";
 import axios from "axios";
-import io from "socket.io-client";
 
 export default {
     data() {
@@ -92,27 +69,23 @@ export default {
             selectedReason: null,
             reasonCodes: [],
             tickets: [], // Store ticket data
-            createdTicket: null, // Declare createdTicket
             socket: null,
         };
     },
     props: {
-        data: Array,
+        data: {
+            type: Object, // Change the prop type to Object
+            required: true,
+        },
+        delayedData: {
+            type: Array,
+            required: true,
+        },
     },
-    emits: ["train-number-selected"],
     components: {
         ReasonCodes,
     },
     methods: {
-        logItem() {
-            console.log("Current Item:", this.item);
-        },
-
-        /* Emit an event to send the train number to the map view */
-        sendTrainNumber(trainnumber) {
-            this.$emit("train-number-selected", trainnumber);
-        },
-
         async deleteTicket(activityId) {
             if (!this.selectedItem) {
                 return;
@@ -187,23 +160,6 @@ export default {
             this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
             // Connect to Socket.IO server
-            this.socket = io("http://localhost:1337");
-
-            // Check if the ticket is already locked
-            // this.socket.emit(
-            //     "checkLock",
-            //     { ticketId: item.activityId },
-            //     async (response) => {
-            //         if (response.isLocked) {
-            //             alert(
-            //                 `Ticket ${item.activityId} is already being handled.`
-            //             );
-            //             window.location.reload(); // Refresh the page
-            //         } else {
-            //             // Emit the 'openErrand' event to the server with the ticketId
-            //             this.socket.emit("openErrand", {
-            //                 ticketId: item.activityId,
-            //             });
 
             try {
                 const response = await axios.get(
@@ -223,9 +179,6 @@ export default {
             }
         },
         closeTicketView() {
-            this.socket.emit("closeErrand", {
-                ticketId: this.selectedItem.activityId,
-            });
             this.showTicketView = false;
             // Emit the 'closeErrand' event to the server with the ticketId
             this.selectedItem = null; // Reset selectedItem
@@ -234,70 +187,6 @@ export default {
             // Emit the 'releaseTicket' event to the server with the activityId
 
             window.location.reload(); // Refresh the pages
-        },
-        outputDelay(item) {
-            const advertised = new Date(item.AdvertisedTimeAtLocation);
-            const estimated = new Date(item.EstimatedTimeAtLocation);
-            const diff = Math.abs(estimated - advertised);
-            return Math.floor(diff / (1000 * 60)) + " minuter";
-        },
-        async createTicket() {
-            // Check if a reason code is selected
-            if (!this.selectedReason) {
-                // Use this.selectedReason here
-                alert("Please select a reason code.");
-                return;
-            }
-
-            // Create an object with the ticket data
-            const ticketData = {
-                code: this.selectedReason,
-                trainnumber: this.selectedItem.trainnumber,
-                activityId: this.selectedItem.activityId, // Corrected line
-            };
-
-            // Log the ticketData object to the console for debugging
-            console.log("ticketData:", ticketData);
-
-            try {
-                const response = await axios.post(
-                    "http://localhost:1337/tickets",
-                    ticketData,
-                    {
-                        validateStatus: function (status) {
-                            console.log("Response Status Code:", status);
-                            return status >= 200 && status < 300;
-                        },
-                    }
-                );
-
-                // Log the entire response object
-                console.log("Response Data:", response.data);
-                console.log("Response Headers:", response.headers);
-
-                // Handle the successful creation of the ticket
-                if (response.status === 200) {
-                    // Set the createdTicket property and display a success message
-                    await this.openTicketView(this.selectedItem);
-
-                    this.createdTicket = {
-                        code: response.data.code,
-                        trainnumber: response.data.trainnumber,
-                        traindate: response.data.traindate,
-                        activityId: response.data.activityId,
-                    };
-                    alert("Ticket created successfully");
-                } else {
-                    console.error(
-                        "Unexpected response status:",
-                        response.status
-                    );
-                    console.log("Response Data:", response.data); // Log response data
-                }
-            } catch (error) {
-                console.error("Error creating ticket:", error);
-                console.log("Response Data:", error.response.data); // Log response data in the case of an error
-            }
         },
     },
 };
@@ -336,5 +225,13 @@ export default {
 
 select {
     width: 250px; /* Set a specific width that suits your content */
+}
+</style>
+
+<style scoped>
+.ticket-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 </style>

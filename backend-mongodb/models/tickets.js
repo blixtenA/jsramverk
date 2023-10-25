@@ -105,12 +105,14 @@ const tickets = {
             const activityId = req.params.activityId; // Get the activity ID from the URL
             const receivedData = req.body;
 
+            const currentDate = new Date();
+
             console.log(receivedData);
             const updatedTicketData = {
                 id: receivedData.id,
                 code: receivedData.code,
                 trainnumber: receivedData.trainnumber,
-                traindate: receivedData.traindate,
+                traindate: currentDate,
                 activityId: receivedData.activityId,
             };
 

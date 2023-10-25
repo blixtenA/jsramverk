@@ -33,8 +33,23 @@ p {
     display: flex;
 }
 
+.container2 {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+}
+
 /* Styles for the container */
 .delayed {
+    height: 100vh;
+    width: 40vw;
+    padding: 2rem;
+    overflow: scroll;
+    background-color: white;
+}
+
+/* Styles for the container */
+.tickets {
     height: 100vh;
     width: 40vw;
     padding: 2rem;
@@ -48,13 +63,12 @@ p {
     overflow: hidden;
 }
 
-
 .delayed-trains {
     display: flex;
     flex-direction: column;
 }
 
-.delayed-trains>div {
+.delayed-trains > div {
     display: flex;
     flex-direction: column;
     border-top: 1px solid #ccc;
@@ -62,7 +76,7 @@ p {
     cursor: pointer;
 }
 
-.delayed-trains>div:nth-of-type(2n) {
+.delayed-trains > div:nth-of-type(2n) {
     background-color: #eee;
 }
 
