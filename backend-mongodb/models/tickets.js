@@ -66,10 +66,11 @@ const tickets = {
 
             // Process the request data and create the ticket
             console.log("Received request data:", req.body);
+            const currentDate = new Date(); // Define the currentDate variable
             const result = await db.collection("tickets").insertOne({
                 code: req.body.code,
                 trainnumber: req.body.trainnumber,
-                traindate: req.body.traindate,
+                traindate: currentDate,
                 activityId: req.body.activityId, // Corrected line
             });
 

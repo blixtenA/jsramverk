@@ -30,9 +30,7 @@
         <div class="modal" id="train-modal">
             <!-- Rest of your template -->
             <button @click="closeTicketView" id="back">Close Ticket</button>
-            <button @click="deleteTicket(selectedItem.activityId)">
-                Delete
-            </button>
+
             <h1>Nytt ärende #{{ selectedItem.activityId }}</h1>
             <ul v-if="selectedItem">
                 <li v-for="ticket in tickets" :key="ticket._id">
@@ -41,8 +39,13 @@
                     <button @click="updateTicket(ticket.activityId)">
                         Edit</button
                     ><br /><br />
-                    <strong>Tågnummer:</strong> {{ ticket.trainnumber }}<br />
-                    <strong>Tågdatum:</strong> {{ ticket.traindate }}
+                    <button @click="deleteTicket(selectedItem.activityId)">
+                        Delete
+                    </button>
+                    <br /><br />
+                    <strong>Tågnummer:</strong> {{ ticket.trainnumber
+                    }}<br /><br />
+                    <strong>Tågdatum:</strong> {{ ticket.traindate }}<br />
                     <strong>ActivityID:</strong> {{ ticket.activityId }}
                 </li>
             </ul>
@@ -187,42 +190,37 @@ export default {
             this.socket = io("http://localhost:1337");
 
             // Check if the ticket is already locked
-            this.socket.emit(
-                "checkLock",
-                { ticketId: item.activityId },
-                async (response) => {
-                    if (response.isLocked) {
-                        alert(
-                            `Ticket ${item.activityId} is already being handled.`
-                        );
-                        window.location.reload(); // Refresh the page
-                    } else {
-                        // Emit the 'openErrand' event to the server with the ticketId
-                        this.socket.emit("openErrand", {
-                            ticketId: item.activityId,
-                        });
+            // this.socket.emit(
+            //     "checkLock",
+            //     { ticketId: item.activityId },
+            //     async (response) => {
+            //         if (response.isLocked) {
+            //             alert(
+            //                 `Ticket ${item.activityId} is already being handled.`
+            //             );
+            //             window.location.reload(); // Refresh the page
+            //         } else {
+            //             // Emit the 'openErrand' event to the server with the ticketId
+            //             this.socket.emit("openErrand", {
+            //                 ticketId: item.activityId,
+            //             });
 
-                        try {
-                            const response = await axios.get(
-                                `http://localhost:1337/tickets/${item.activityId}`
-                            );
+            try {
+                const response = await axios.get(
+                    `http://localhost:1337/tickets/${item.activityId}`
+                );
 
-                            if (response.status === 200) {
-                                this.tickets = response.data.data;
-                                this.selectedItem = item;
-                                this.selectedItem.trainNumber =
-                                    item.OperationalTrainNumber; // Set trainNumber
-                                this.selectedItem.trainDate =
-                                    item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
-                                this.selectedItem.activityId = item.activityId;
-                                this.showTicketView = true;
-                            }
-                        } catch (error) {
-                            console.error("No ticket have been created yet");
-                        }
-                    }
+                if (response.status === 200) {
+                    this.tickets = response.data.data;
+                    this.selectedItem = item;
+                    this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
+                    this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+                    this.selectedItem.activityId = item.activityId;
+                    this.showTicketView = true;
                 }
-            );
+            } catch (error) {
+                console.error("No ticket have been created yet");
+            }
         },
         closeTicketView() {
             this.socket.emit("closeErrand", {
@@ -254,8 +252,7 @@ export default {
             // Create an object with the ticket data
             const ticketData = {
                 code: this.selectedReason,
-                trainnumber: this.selectedItem.trainNumber,
-                traindate: this.selectedItem.trainDate,
+                trainnumber: this.selectedItem.trainnumber,
                 activityId: this.selectedItem.activityId, // Corrected line
             };
 
