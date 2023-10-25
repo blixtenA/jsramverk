@@ -1,49 +1,42 @@
-const setupSocketServer = (io) => {
-    const lockedTickets = new Set(); // Keep track of locked tickets
+const lockedItems = new Set(); // Track locked tickets
 
+const setupSocketServer = (io) => {
     io.on("connection", (socket) => {
         console.log("A user connected to Tickets");
 
         socket.on("openErrand", async (data) => {
-            let ticketId; // Define ticketId here
+            const { ticketId } = data;
 
-            try {
-                ticketId = data.activityId; // Assuming activityId is the unique ticket identifier
-
-                console.log(ticketId);
-
-                if (lockedTickets.has(ticketId)) {
-                    // If the ticket is already locked by another user, emit a message indicating the same
-                    socket.emit("ticketAlreadyLocked", {
-                        message: "Ticket already locked by another user.",
-                    });
-                    return;
-                }
-
-                lockedTickets.add(ticketId); // Lock the ticket
-
-                // Emit a message indicating that the ticket has been opened
-                socket.emit("ticketOpened");
-            } finally {
-                // Do not delete the ticket from the lockedTickets set here
+            if (!lockedItems.has(ticketId)) {
+                lockedItems.add(ticketId);
+                // Logic for opening the errand
+                console.log(`Ticket ${ticketId} has been opened by a user.`);
+            } else {
+                console.log(`Ticket ${ticketId} is already being handled.`);
+                socket.emit("ticketLocked", { ticketId: ticketId });
+                return;
             }
         });
 
         socket.on("closeErrand", async (data) => {
-            let ticketId; // Define ticketId here
+            const { ticketId } = data;
 
-            try {
-                ticketId = data.activityId; // Assuming activityId is the unique ticket identifier
-
-                lockedTickets.delete(ticketId); // Delete the ticket from the lockedTickets set
-                // Perform other actions associated with closing the ticket here
-            } catch (error) {
-                // Handle errors if necessary
-                console.error(error);
+            if (lockedItems.has(ticketId)) {
+                lockedItems.delete(ticketId);
+                // Logic for closing the errand
+                console.log(`Ticket ${ticketId} has been closed by a user.`);
+            } else {
+                console.log(
+                    `Ticket ${ticketId} is not currently being handled.`
+                );
             }
         });
 
-        // You can add more socket event listeners here as needed
+        socket.on("checkLock", (data, callback) => {
+            const { ticketId } = data;
+            const isLocked = lockedItems.has(ticketId);
+            callback({ isLocked });
+        });
     });
 };
 

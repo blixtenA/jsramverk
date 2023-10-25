@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 
 const fetchTrainPositions = require("./models/trains.js");
+const setupSocketServer = require("./models/socket.js");
 const delayed = require("./routes/delayed.js");
 const tickets = require("./routes/tickets.js");
 const stations = require("./routes/stations.js");
@@ -66,5 +67,6 @@ httpServer.listen(port, () => {
 });
 
 fetchTrainPositions(io);
+setupSocketServer(io);
 
 module.exports = app; // Export the app variable

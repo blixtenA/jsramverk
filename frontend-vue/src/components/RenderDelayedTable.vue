@@ -76,6 +76,7 @@
 <script>
 import ReasonCodes from "./ReasonCodes.vue";
 import axios from "axios";
+import io from "socket.io-client";
 
 export default {
     data() {
@@ -86,6 +87,7 @@ export default {
             reasonCodes: [],
             tickets: [], // Store ticket data
             createdTicket: null, // Declare createdTicket
+            socket: null,
         };
     },
     props: {
@@ -181,31 +183,63 @@ export default {
             this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
             this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
-            // Fetch ticket data when a ticket is opened
-            try {
-                const response = await axios.get(
-                    `http://localhost:1337/tickets/${item.activityId}`
-                );
+            // Connect to Socket.IO server
+            this.socket = io("http://localhost:1337");
 
-                if (response.status === 200) {
-                    this.tickets = response.data.data;
-                } else {
-                    console.error(
-                        "Failed to fetch ticket data:",
-                        response.status
-                    );
+            // Check if the ticket is already locked
+            this.socket.emit(
+                "checkLock",
+                { ticketId: item.activityId },
+                async (response) => {
+                    if (response.isLocked) {
+                        alert(
+                            `Ticket ${item.activityId} is already being handled.`
+                        );
+                        window.location.reload(); // Refresh the page
+                    } else {
+                        // Emit the 'openErrand' event to the server with the ticketId
+                        this.socket.emit("openErrand", {
+                            ticketId: item.activityId,
+                        });
+
+                        try {
+                            const response = await axios.get(
+                                `http://localhost:1337/tickets/${item.activityId}`
+                            );
+
+                            if (response.status === 200) {
+                                this.tickets = response.data.data;
+                                this.selectedItem = item;
+                                this.selectedItem.trainNumber =
+                                    item.OperationalTrainNumber; // Set trainNumber
+                                this.selectedItem.trainDate =
+                                    item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+                                this.selectedItem.activityId = item.activityId;
+                                this.showTicketView = true;
+                            } else {
+                                console.error(
+                                    "Failed to fetch ticket data:",
+                                    response.status
+                                );
+                            }
+                        } catch (error) {
+                            console.error("Error fetching ticket data:", error);
+                        }
+                    }
                 }
-            } catch (error) {
-                console.error("Error fetching ticket data:", error);
-            }
-
-            this.showTicketView = true;
+            );
         },
         closeTicketView() {
+            this.socket.emit("closeErrand", {
+                ticketId: this.selectedItem.activityId,
+            });
             this.showTicketView = false;
+            // Emit the 'closeErrand' event to the server with the ticketId
             this.selectedItem = null; // Reset selectedItem
             this.tickets = []; // Reset tickets
             this.createdTicket = null; // Reset createdTicket
+            // Emit the 'releaseTicket' event to the server with the activityId
+
             window.location.reload(); // Refresh the pages
         },
         outputDelay(item) {
@@ -305,7 +339,7 @@ export default {
 .modal-content button {
     background-color: #fff;
     border: 1px solid #ccc;
-    padding: 10px 20px;
+    padding: 10px 40px;
 }
 
 select {

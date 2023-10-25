@@ -1,5 +1,4 @@
 const fetch = require("node-fetch");
-const database = require("../db/database.js");
 
 const stations = {
     getStationNames: async function getStationNames(req, res) {
@@ -22,10 +21,12 @@ const stations = {
 
         const result = await response.json();
 
-        const stationsData = result.RESPONSE.RESULT[0].TrainStation.map((station) => ({
-            LocationSignature: station.LocationSignature,
-            AdvertisedLocationName: station.AdvertisedLocationName
-        }));
+        const stationsData = result.RESPONSE.RESULT[0].TrainStation.map(
+            (station) => ({
+                LocationSignature: station.LocationSignature,
+                AdvertisedLocationName: station.AdvertisedLocationName,
+            })
+        );
 
         return res.json({
             data: stationsData,
