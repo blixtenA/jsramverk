@@ -168,8 +168,6 @@ export default {
                     console.log("Response Data:", error.response.data);
                 }
             }
-            console.log(this.tickets);
-
         },
     },
     components: {

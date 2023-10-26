@@ -199,9 +199,6 @@ export default {
                     }
                 );
 
-                console.log("Response Data:", response.data);
-                console.log("Response Headers:", response.headers);
-
                 if (response.status === 200) {
                     alert("Ticket updated successfully");
                     await this.closeTicketView();
@@ -219,15 +216,12 @@ export default {
         },
 
         async openTicketView(item) {
-            console.log(item);
             this.selectedItem = item;
             this.selectedItem.trainNumber = item.trainnumber; 
             this.selectedItem.trainDate = item.AdvertisedTimeAtLocation;
             this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
-            console.log(this.selectedItem.trainnumber);
 
-            console.log(this.selectedItem);
             // Connect to Socket.IO server
             this.socket = io("http://localhost:1337");
 

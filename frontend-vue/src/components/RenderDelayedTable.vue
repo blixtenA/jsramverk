@@ -295,10 +295,7 @@ export default {
                 activityId: this.selectedItem.activityId,
             };
 
-            console.log("ticketData:", ticketData);
-
             try {
-                console.log("post");
                 const response = await axios.post(
                     "http://localhost:1337/tickets",
                     ticketData,
