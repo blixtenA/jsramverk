@@ -78,6 +78,7 @@
 <script>
 import ReasonCodes from "./ReasonCodes.vue";
 import axios from "axios";
+import io from "socket.io-client";
 
 export default {
     data() {
@@ -117,7 +118,7 @@ export default {
                 if (response.status === 200) {
                     alert("Ticket deleted successfully");
                     // Reload the list of tickets after deletion
-                    window.location.reload(); // Refresh the page
+                    await this.closeTicketView();
                 } else {
                     console.error(
                         "Unexpected response status:",
@@ -157,7 +158,7 @@ export default {
 
                 if (response.status === 200) {
                     alert("Ticket updated successfully");
-                    window.location.reload(); // Refresh the page
+                    await this.closeTicketView();
                 } else {
                     console.error(
                         "Unexpected response status:",
@@ -172,33 +173,59 @@ export default {
         },
 
         async openTicketView(item) {
-            this.selectedItem = {
-                ...item,
-                trainNumber: item.OperationalTrainNumber,
-                trainDate: item.AdvertisedTimeAtLocation,
-                activityId: item.activityId,
-            };
+            this.selectedItem = item;
+            this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
+            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+            this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
             // Connect to Socket.IO server
+            this.socket = io("http://localhost:1337");
 
-            try {
-                const response = await axios.get(
-                    `http://localhost:1337/tickets/${item.activityId}`
-                );
+            // Check if the ticket is already locked
+            this.socket.emit(
+                "checkLock",
+                { ticketId: item.activityId },
+                async (response) => {
+                    if (response.isLocked) {
+                        alert(
+                            `Ticket ${item.activityId} is already being handled.`
+                        );
+                        window.location.reload(); // Refresh the page
+                    } else {
+                        // Emit the 'openErrand' event to the server with the ticketId
+                        this.socket.emit("openErrand", {
+                            ticketId: item.activityId,
+                        });
 
-                if (response.status === 200) {
-                    this.tickets = response.data.data;
-                    this.selectedItem = item;
-                    this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
-                    this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
-                    this.selectedItem.activityId = item.activityId;
-                    this.showTicketView = true;
+                        try {
+                            const response = await axios.get(
+                                `http://localhost:1337/tickets/${item.activityId}`
+                            );
+
+                            if (response.status === 200) {
+                                this.tickets = response.data.data;
+                                this.selectedItem = item;
+                                this.selectedItem.trainNumber =
+                                    item.OperationalTrainNumber; // Set trainNumber
+                                this.selectedItem.trainDate =
+                                    item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+                                this.selectedItem.activityId = item.activityId;
+                                this.showTicketView = true;
+                            }
+                        } catch (error) {
+                            console.error(
+                                "No ticket has been created yet",
+                                error
+                            );
+                        }
+                    }
                 }
-            } catch (error) {
-                console.error("No ticket have been created yet");
-            }
+            );
         },
         closeTicketView() {
+            this.socket.emit("closeErrand", {
+                ticketId: this.selectedItem.activityId,
+            });
             this.showTicketView = false;
             // Emit the 'closeErrand' event to the server with the ticketId
             this.selectedItem = null; // Reset selectedItem
