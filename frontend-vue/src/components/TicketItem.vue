@@ -127,10 +127,21 @@ export default {
             return reasonCode ? reasonCode.Level3Description : "N/A"; 
         },
 
-
         async deleteItem(item) {
-            console.log(item.activityId);
-            await this.deleteTicketHelper(item.activityId);
+            this.socket = io("http://localhost:1337");
+            // Check if the ticket is already locked
+            this.socket.emit("checkLock", { ticketId: item.activityId }, async (response) => {
+                if (response.isLocked) {
+                alert(`Ticket ${item.activityId} is already being handled.`);
+                window.location.reload(); // Refresh the page
+                } else {
+                try {
+                    await this.deleteTicketHelper(item.activityId);
+                } catch (error) {
+                    console.error("Error deleting ticket:", error);
+                }
+                }
+            });
         },
 
         async deleteTicket(activityId) {
