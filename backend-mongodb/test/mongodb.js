@@ -127,8 +127,75 @@ describe("Ticket API", () => {
         }
     });
 
+    it("should get tickets by activity ID", async () => {
+        const activityId = "1500adde-095d-334b-08db-blablabla";
+        const retrieveTicketsURL = `/tickets/${activityId}`;
+
+        try {
+            const res = await chai.request(app).get(retrieveTicketsURL);
+
+            // Debug: Print the response body after retrieving the tickets
+            console.log("GET Response Body:", res.body);
+
+            expect(res).to.have.status(200);
+
+            // For example, you can check that retrievedTickets is an array of ticket objects
+        } catch (err) {
+            // Handle errors and fail the test with an error message
+            console.error("Error during GET request:", err);
+            throw err;
+        }
+    });
+
+    it("should update a ticket", async () => {
+        const activityId = "1500adde-095d-334b-08db-blablabla";
+        const updateTicketURL = `/tickets/${activityId}`;
+
+        const updatedData = {
+            code: "updated_code",
+        };
+
+        try {
+            const res = await chai
+                .request(app)
+                .put(updateTicketURL)
+                .send(updatedData);
+
+            // Debug: Print the response body after updating the ticket
+            console.log("PUT Response Body:", res.body);
+
+            expect(res).to.have.status(200);
+
+            // Additional checks based on the response can be added here
+        } catch (err) {
+            // Handle errors and fail the test with an error message
+            console.error("Error during PUT request:", err);
+            throw err;
+        }
+    });
+
+    it("should delete a ticket", async () => {
+        const activityId = "1500adde-095d-334b-08db-blablabla";
+        const deleteTicketURL = `/tickets/${activityId}`;
+
+        try {
+            const res = await chai.request(app).delete(deleteTicketURL);
+
+            // Debug: Print the response body after deleting the ticket
+            console.log("DELETE Response Body:", res.body);
+
+            expect(res).to.have.status(200);
+
+            // Additional checks based on the response can be added here
+        } catch (err) {
+            // Handle errors and fail the test with an error message
+            console.error("Error during DELETE request:", err);
+            throw err;
+        }
+    });
+
     describe("Database after", () => {
-        it("should have data in the 'tickets' collection", async () => {
+        it("should not have data in the 'tickets' collection after delete", async () => {
             // Assuming you have access to the MongoDB client connected to your database
             const db = client.db(); // The 'client' variable is now accessible here
 
@@ -136,8 +203,8 @@ describe("Ticket API", () => {
             const ticketsCollection = db.collection("tickets");
             const ticketCount = await ticketsCollection.countDocuments();
 
-            // Assert that there is at least one document in the collection (created in the test)
-            expect(ticketCount).to.be.at.least(1);
+            // Assert that there are no documents in the collection (since it's been deleted)
+            expect(ticketCount).to.equal(0);
         });
     });
 });
