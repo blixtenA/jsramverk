@@ -1,40 +1,40 @@
 <template>
     <div class="delayed-trains" ref="delayedTrains" id="delayed-trains">
-      <div
-        v-for="(item, index) in data"
-        :key="index"
-        class="train-item"
-        @click="sendTrainNumber(item.trainnumber)"
-      >
-        <div class="train-number">{{ item.trainnumber }}</div>
         <div
-          class="current-station"
-          @click="sendTrainNumber(item.trainnumber)"
+            v-for="(item, index) in data"
+            :key="index"
+            class="train-item"
+            @click="sendTrainNumber(item.trainnumber)"
         >
-          <div>{{ item.LocationSignature }}</div>
-          <div>
-            {{ item.FromLocation ? item.FromLocation + " -> " : ""
-            }}{{ item.ToLocation ? item.ToLocation : "" }}
-          </div>
+            <div class="train-number">{{ item.trainnumber }}</div>
+            <div
+                class="current-station"
+                @click="sendTrainNumber(item.trainnumber)"
+            >
+                <div>{{ item.LocationSignature }}</div>
+                <div>
+                    {{ item.FromLocation ? item.FromLocation + " -> " : ""
+                    }}{{ item.ToLocation ? item.ToLocation : "" }}
+                </div>
+            </div>
+            <!-- Display the "Edit" button if there's a match, otherwise display the "Create Ticket" button -->
+            <button
+                v-if="hasDataticket(item.trainnumber)"
+                type="submit"
+                class="edit-button1"
+                @click="editFunction(item)"
+            >
+                Edit
+            </button>
+            <button
+                v-else
+                type="submit"
+                class="create-button"
+                @click="createFunction(item)"
+            >
+                Create Ticket
+            </button>
         </div>
-      <!-- Display the "Edit" button if there's a match, otherwise display the "Create Ticket" button -->
-      <button
-        v-if="hasDataticket(item.trainnumber)"
-        type="submit"
-        class="edit-button1"
-        @click="editFunction(item)"
-      >
-        Edit
-      </button>
-      <button
-        v-else
-        type="submit"
-        class="create-button"
-        @click="createFunction(item)"
-      >
-        Create Ticket
-      </button>
-      </div>
     </div>
 
     <div v-if="showTicketView" class="modal-container">
@@ -60,35 +60,51 @@
             </p>
 
             <form @submit.prevent="submitForm" class="create-ticket-form">
-            <label for="reason-code" class="reason-code-label">Orsakskod</label><br />
-            <reason-codes v-model="selectedReason" :reasonCodes="reasonCodes"></reason-codes>
+                <label for="reason-code" class="reason-code-label"
+                    >Orsakskod</label
+                ><br />
+                <reason-codes
+                    v-model="selectedReason"
+                    :reasonCodes="reasonCodes"
+                ></reason-codes>
 
-            <!-- Display "Skapa nytt ärende" button when creating a new ticket -->
-            <div class="create-ticket-button">
-                <button
-                v-if="shouldDisplayCreateButton"
-                type="button"
-                class="submit-button"
-                @click="createTicket()"
-                >
-                Skapa nytt ärende
-                </button>
-            </div>
+                <!-- Display "Skapa nytt ärende" button when creating a new ticket -->
+                <div class="create-ticket-button">
+                    <button
+                        v-if="shouldDisplayCreateButton"
+                        type="button"
+                        class="submit-button"
+                        @click="createTicket()"
+                    >
+                        Skapa nytt ärende
+                    </button>
+                </div>
             </form>
 
             <!-- Edit and Delete buttons -->
             <div class="selectedItem">
-            <ul v-if="selectedItem">
-                <li v-for="ticket in tickets" :key="ticket._id" class="ticket-item">
-                <strong>Aktuell orsakskod:</strong> {{ ticket.code }}<br /><br />
-                <button @click="updateTicket(ticket.activityId)" class="edit-button">
-                    Uppdatera
-                </button>
-                <button @click="deleteTicket(ticket.activityId)" class="delete-button">
-                    Avsluta ärende
-                </button><br /><br />
-                </li>
-            </ul>
+                <ul v-if="selectedItem">
+                    <li
+                        v-for="ticket in tickets"
+                        :key="ticket._id"
+                        class="ticket-item"
+                    >
+                        <strong>Aktuell orsakskod:</strong> {{ ticket.code
+                        }}<br /><br />
+                        <button
+                            @click="updateTicket(ticket.activityId)"
+                            class="edit-button"
+                        >
+                            Uppdatera
+                        </button>
+                        <button
+                            @click="deleteTicket(ticket.activityId)"
+                            class="delete-button"
+                        >
+                            Avsluta ärende</button
+                        ><br /><br />
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -106,8 +122,8 @@ export default {
             selectedItem: null,
             selectedReason: null,
             reasonCodes: [],
-            tickets: [], 
-            createdTicket: null, 
+            tickets: [],
+            createdTicket: null,
             socket: null,
             shouldDisplayCreateButton: false,
         };
@@ -127,24 +143,31 @@ export default {
         async deleteTicket(activityId = false) {
             // Check if the ticket is already locked
             try {
-            const response = await axios.delete(`http://localhost:1337/tickets/${activityId}`);
+                const response = await axios.delete(
+                    `https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets/${activityId}`
+                );
 
-            if (response.status === 200) {
-                alert("Ticket deleted successfully");
-                await this.closeTicketView();
-            } else {
-                console.error("Unexpected response status:", response.status);
-                console.log("Response Data:", response.data);
-            }
+                if (response.status === 200) {
+                    alert("Ticket deleted successfully");
+                    await this.closeTicketView();
+                } else {
+                    console.error(
+                        "Unexpected response status:",
+                        response.status
+                    );
+                    console.log("Response Data:", response.data);
+                }
             } catch (error) {
-            console.error("Error deleting ticket:", error);
-            console.log("Response Data:", error.response.data);
+                console.error("Error deleting ticket:", error);
+                console.log("Response Data:", error.response.data);
             }
         },
 
         hasDataticket(trainnumber) {
             const hasMatch = this.datatickets.some((dataticket) => {
-                return dataticket.trainnumber.toString() === trainnumber.toString();
+                return (
+                    dataticket.trainnumber.toString() === trainnumber.toString()
+                );
             });
 
             return hasMatch;
@@ -181,7 +204,7 @@ export default {
 
             try {
                 const response = await axios.put(
-                    `http://localhost:1337/tickets/${activityId}`,
+                    `https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets/${activityId}`,
                     updatedTicketData,
                     {
                         validateStatus: function (status) {
@@ -212,12 +235,14 @@ export default {
 
         async openTicketView(item) {
             this.selectedItem = item;
-            this.selectedItem.trainNumber = item.trainnumber; 
-            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; 
+            this.selectedItem.trainNumber = item.trainnumber;
+            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation;
             this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
             // Connect to Socket.IO server
-            this.socket = io("http://localhost:1337");
+            this.socket = io(
+                "https://jsramverk-train-adde22anbx22.azurewebsites.net"
+            );
 
             // Check if the ticket is already locked
             this.socket.emit(
@@ -237,14 +262,16 @@ export default {
 
                         try {
                             const response = await axios.get(
-                                `http://localhost:1337/tickets/${item.activityId}`
+                                `https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets/${item.activityId}`
                             );
 
                             if (response.status === 200) {
                                 this.tickets = response.data.data;
                                 this.selectedItem = item;
-                                this.selectedItem.trainNumber = item.trainnumber; 
-                                this.selectedItem.trainDate = item.AdvertisedTimeAtLocation;
+                                this.selectedItem.trainNumber =
+                                    item.trainnumber;
+                                this.selectedItem.trainDate =
+                                    item.AdvertisedTimeAtLocation;
                                 this.selectedItem.activityId = item.activityId;
                                 this.showTicketView = true;
                             }
@@ -265,9 +292,9 @@ export default {
             });
             this.showTicketView = false;
             // Emit the 'closeErrand' event to the server with the ticketId
-            this.selectedItem = null; 
-            this.tickets = []; 
-            this.createdTicket = null; 
+            this.selectedItem = null;
+            this.tickets = [];
+            this.createdTicket = null;
             // Emit the 'releaseTicket' event to the server with the activityId
 
             window.location.reload(); // Refresh the pages
@@ -297,7 +324,7 @@ export default {
 
             try {
                 const response = await axios.post(
-                    "http://localhost:1337/tickets",
+                    "https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets/",
                     ticketData,
                     {
                         validateStatus: function (status) {
@@ -447,33 +474,33 @@ export default {
 }
 
 .edit-button1 {
-  background: #3498db; 
-  color: white; 
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .create-button {
-  background: #27ae60; 
-  color: white; 
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .edit-button1:hover {
-  background: #0073e6; 
+    background: #0073e6;
 }
 
 .create-button:hover {
-  background: #219652; 
+    background: #219652;
 }
 
 .edit-button {
-  background: #3498db;
+    background: #3498db;
 }
 
 .selectedItem ul {
@@ -481,7 +508,6 @@ export default {
 }
 
 h2 {
-  margin-bottom: 10px; 
+    margin-bottom: 10px;
 }
-
 </style>

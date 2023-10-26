@@ -25,7 +25,7 @@ export default {
     },
     mounted() {
         // Fetch reason codes from your API
-        fetch("http://localhost:1337/codes")
+        fetch("https://jsramverk-train-adde22anbx22.azurewebsites.net/codes")
             .then((response) => response.json())
             .then((data) => {
                 this.reasonCodes = data.data;
@@ -35,7 +35,7 @@ export default {
                     this.selectedReason = this.reasonCodes[0].Level2Description;
                     this.selectedReason = this.reasonCodes[0].Level3Description;
                 }
-                this.$emit('reason-codes-loaded', this.reasonCodes);
+                this.$emit("reason-codes-loaded", this.reasonCodes);
             })
             .catch((error) => {
                 console.error("Error fetching reason codes:", error);

@@ -5,10 +5,11 @@
         </div>
         <div v-if="item.activityId"></div>
         <div><strong>Orsakskod:</strong> {{ item.code }}</div>
-        <div> 
+        <div>
             {{ getLevel1Description(item.code) }} :
             {{ getLevel2Description(item.code) }} :
-            {{ getLevel3Description(item.code) }}</div>
+            {{ getLevel3Description(item.code) }}
+        </div>
 
         <div class="button-container2">
             <button class="edit-button" @click="openTicketView(item)">
@@ -114,39 +115,47 @@ export default {
     methods: {
         getLevel1Description(code) {
             const reasonCode = this.reasonCodes.find((rc) => rc.Code === code);
-            return reasonCode ? reasonCode.Level1Description : "N/A"; 
+            return reasonCode ? reasonCode.Level1Description : "N/A";
         },
 
         getLevel2Description(code) {
             const reasonCode = this.reasonCodes.find((rc) => rc.Code === code);
-            return reasonCode ? reasonCode.Level2Description : "N/A"; 
+            return reasonCode ? reasonCode.Level2Description : "N/A";
         },
 
         getLevel3Description(code) {
             const reasonCode = this.reasonCodes.find((rc) => rc.Code === code);
-            return reasonCode ? reasonCode.Level3Description : "N/A"; 
+            return reasonCode ? reasonCode.Level3Description : "N/A";
         },
 
         async deleteItem(item) {
-            this.socket = io("http://localhost:1337");
+            this.socket = io(
+                "https://jsramverk-train-adde22anbx22.azurewebsites.net"
+            );
             // Check if the ticket is already locked
-            this.socket.emit("checkLock", { ticketId: item.activityId }, async (response) => {
-                if (response.isLocked) {
-                alert(`Ticket ${item.activityId} is already being handled.`);
-                window.location.reload(); // Refresh the page
-                } else {
-                try {
-                    await this.deleteTicketHelper(item.activityId);
-                } catch (error) {
-                    console.error("Error deleting ticket:", error);
+            this.socket.emit(
+                "checkLock",
+                { ticketId: item.activityId },
+                async (response) => {
+                    if (response.isLocked) {
+                        alert(
+                            `Ticket ${item.activityId} is already being handled.`
+                        );
+                        window.location.reload(); // Refresh the page
+                    } else {
+                        try {
+                            await this.deleteTicketHelper(item.activityId);
+                        } catch (error) {
+                            console.error("Error deleting ticket:", error);
+                        }
+                    }
                 }
-                }
-            });
+            );
         },
 
         async deleteTicket(activityId) {
             if (!this.selectedItem) {
-            return;
+                return;
             }
             await this.deleteTicketHelper(activityId, true);
         },
@@ -154,22 +163,27 @@ export default {
         async deleteTicketHelper(activityId, closeView = false) {
             // Check if the ticket is already locked
             try {
-            const response = await axios.delete(`http://localhost:1337/tickets/${activityId}`);
+                const response = await axios.delete(
+                    `https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets/${activityId}`
+                );
 
-            if (response.status === 200) {
-                alert("Ticket deleted successfully");
-                if (closeView) {
-                await this.closeTicketView();
+                if (response.status === 200) {
+                    alert("Ticket deleted successfully");
+                    if (closeView) {
+                        await this.closeTicketView();
+                    } else {
+                        window.location.reload();
+                    }
                 } else {
-                window.location.reload();
+                    console.error(
+                        "Unexpected response status:",
+                        response.status
+                    );
+                    console.log("Response Data:", response.data);
                 }
-            } else {
-                console.error("Unexpected response status:", response.status);
-                console.log("Response Data:", response.data);
-            }
             } catch (error) {
-            console.error("Error deleting ticket:", error);
-            console.log("Response Data:", error.response.data);
+                console.error("Error deleting ticket:", error);
+                console.log("Response Data:", error.response.data);
             }
         },
 
@@ -189,7 +203,7 @@ export default {
 
             try {
                 const response = await axios.put(
-                    `http://localhost:1337/tickets/${activityId}`,
+                    `https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets/${activityId}`,
                     updatedTicketData,
                     {
                         validateStatus: function (status) {
@@ -217,13 +231,15 @@ export default {
 
         async openTicketView(item) {
             this.selectedItem = item;
-            this.selectedItem.trainNumber = item.trainnumber; 
+            this.selectedItem.trainNumber = item.trainnumber;
             this.selectedItem.trainDate = item.AdvertisedTimeAtLocation;
             this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
 
             // Connect to Socket.IO server
-            this.socket = io("http://localhost:1337");
+            this.socket = io(
+                "https://jsramverk-train-adde22anbx22.azurewebsites.net"
+            );
 
             // Check if the ticket is already locked
             this.socket.emit(
@@ -243,14 +259,16 @@ export default {
 
                         try {
                             const response = await axios.get(
-                                `http://localhost:1337/tickets/${item.activityId}`
+                                `https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets/${item.activityId}`
                             );
 
                             if (response.status === 200) {
                                 this.tickets = response.data.data;
                                 this.selectedItem = item;
-                                this.selectedItem.trainNumber = item.trainnumber; 
-                                this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; 
+                                this.selectedItem.trainNumber =
+                                    item.trainnumber;
+                                this.selectedItem.trainDate =
+                                    item.AdvertisedTimeAtLocation;
                                 this.selectedItem.activityId = item.activityId;
                                 this.showTicketView = true;
                             }
@@ -272,36 +290,36 @@ export default {
 
             this.showTicketView = false;
             this.selectedItem = null;
-            this.tickets = []; 
-            this.createdTicket = null; 
+            this.tickets = [];
+            this.createdTicket = null;
 
-            window.location.reload(); 
+            window.location.reload();
         },
     },
     mounted() {
-    fetch("http://localhost:1337/codes")
-      .then((response) => response.json())
-      .then((data) => {
-        this.reasonCodes = data.data;
-        if (this.reasonCodes.length > 0) {
-          this.selectedReason = this.reasonCodes[0].Code;
-          this.selectedReason = this.reasonCodes[0].Level1Description;
-          this.selectedReason = this.reasonCodes[0].Level2Description;
-          this.selectedReason = this.reasonCodes[0].Level3Description;
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching reason codes:", error);
-      });
-  },    
+        fetch("https://jsramverk-train-adde22anbx22.azurewebsites.net/codes")
+            .then((response) => response.json())
+            .then((data) => {
+                this.reasonCodes = data.data;
+                if (this.reasonCodes.length > 0) {
+                    this.selectedReason = this.reasonCodes[0].Code;
+                    this.selectedReason = this.reasonCodes[0].Level1Description;
+                    this.selectedReason = this.reasonCodes[0].Level2Description;
+                    this.selectedReason = this.reasonCodes[0].Level3Description;
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching reason codes:", error);
+            });
+    },
 };
 </script>
 
 <style>
 .button-container2 {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
 }
 
 .modal {
@@ -352,7 +370,7 @@ export default {
 }
 
 select {
-    width: 250px; 
+    width: 250px;
 }
 
 .ticket-item {
@@ -362,24 +380,24 @@ select {
 .edit-button,
 .delete-button {
     display: inline-block;
-  width: calc(50% - 5px); 
-  background: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 5px; 
-  padding: 10px 0; 
-  text-align: center; 
-  box-sizing: border-box; 
-  margin-top: 10px;
+    width: calc(50% - 5px);
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+    padding: 10px 0;
+    text-align: center;
+    box-sizing: border-box;
+    margin-top: 10px;
 }
 
 .edit-button2 {
     background: #3498db;
     color: #fff;
     border: none;
-    padding: 10px 20px; 
+    padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     margin-left: 6vh;

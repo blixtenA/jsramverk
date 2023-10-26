@@ -1,26 +1,29 @@
 <template>
     <h1>Train controller</h1>
     <div class="container">
-      <div class="delay-list">
-        <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
-        <h2>Försenade tåg</h2>
-        <render-delayed-table
-          :data="delayedData"
-          :datatickets="tickets"
-          @train-number-selected="handleTrainNumberSelected"
-        ></render-delayed-table>
-      </div>
-  
-      <div class="tickets">
-        <h2>Aktiva ärenden</h2>
-        <div class="main-ticket-items" ref="mainTicketsItems">
-          <render-ticket-table :data="tickets" :delayedData="delayedData"></render-ticket-table>
+        <div class="delay-list">
+            <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
+            <h2>Försenade tåg</h2>
+            <render-delayed-table
+                :data="delayedData"
+                :datatickets="tickets"
+                @train-number-selected="handleTrainNumberSelected"
+            ></render-delayed-table>
         </div>
-      </div>
-  
-      <div class="map" ref="map"></div>
+
+        <div class="tickets">
+            <h2>Aktiva ärenden</h2>
+            <div class="main-ticket-items" ref="mainTicketsItems">
+                <render-ticket-table
+                    :data="tickets"
+                    :delayedData="delayedData"
+                ></render-ticket-table>
+            </div>
+        </div>
+
+        <div class="map" ref="map"></div>
     </div>
-  </template>
+</template>
 
 <script>
 import "leaflet/dist/leaflet.css";
@@ -62,7 +65,9 @@ export default {
                     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             }).addTo(map);
 
-            const socket = io("http://localhost:1337");
+            const socket = io(
+                "https://jsramverk-train-adde22anbx22.azurewebsites.net"
+            );
 
             socket.on("message", (data) => {
                 const trainnumber = data.trainnumber;
@@ -149,10 +154,10 @@ export default {
         async getAllTickets() {
             try {
                 const response = await axios.get(
-                    "http://localhost:1337/tickets"
+                    "https://jsramverk-train-adde22anbx22.azurewebsites.net/tickets"
                 );
                 if (response && Array.isArray(response.data.data)) {
-                    this.tickets = [...this.tickets, ...response.data.data]; 
+                    this.tickets = [...this.tickets, ...response.data.data];
                 } else {
                     console.error(
                         "Response data is not an array or is empty:",
@@ -178,20 +183,18 @@ export default {
 h2 {
     margin-left: 10px;
 }
-
 </style>
 
 <style scoped>
 .container {
-  display: flex;
-  align-items: flex-start;
+    display: flex;
+    align-items: flex-start;
 }
 
 .delay-list,
 .tickets {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
 }
-
 </style>
