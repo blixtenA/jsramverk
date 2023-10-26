@@ -40,6 +40,7 @@ p {
     overflow: scroll;
     background-color: white;
     display: flex;
+    flex-direction: row;
 }
 
 .map {
@@ -49,12 +50,18 @@ p {
 }
 
 .delayed-trains,
-.tickets {
+.Ticket-items {
     flex: 1;
     display: flex;
     flex-direction: column;
     width: 30vh;
 }
+
+.delay-list {
+    flex: 1; /* Let it take up available space */
+    display: flex;
+    flex-direction: column;
+  }
 
 /* .main-delayed-trains,
 .main-ticket-items {
@@ -71,11 +78,6 @@ p {
     padding: 0.2rem 0.8rem;
     cursor: pointer;
     width: 30vh;
-}
-
-.delayed-trains > div:nth-of-type(2n),
-.tickets > div:nth-of-type(2n) {
-    background-color: #eee;
 }
 
 .train-number {

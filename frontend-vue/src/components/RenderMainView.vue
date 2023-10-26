@@ -1,22 +1,26 @@
 <template>
-    <h1>Försenade tåg</h1>
+    <h1>Train controller</h1>
     <div class="container">
-        <div class="delayed">
-            <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
-            <render-delayed-table
-                :data="delayedData"
-                @train-number-selected="handleTrainNumberSelected"
-            ></render-delayed-table>
+            <div class="delay-list">
+                <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
+                <h2>Försenade tåg</h2>
+                <render-delayed-table
+                    :data="delayedData"
+                    :datatickets="tickets"
+                    @train-number-selected="handleTrainNumberSelected"
+                ></render-delayed-table>
+            </div>
 
             <div class="tickets">
+                <h2>Aktiva ärenden</h2>
                 <div class="main-ticket-items" ref="mainTicketsItems">
+
                     <render-ticket-table
                         :data="tickets"
                         :delayedData="delayedData"
                     ></render-ticket-table>
                 </div>
             </div>
-        </div>
         <div class="map" ref="map"></div>
     </div>
 </template>
@@ -42,7 +46,7 @@ export default {
     },
     mounted() {
         this.renderMainView();
-        this.getAllTickets(); // Fetch all tickets when the component is mounted
+        this.getAllTickets();
     },
     methods: {
         renderMainView() {
@@ -151,7 +155,7 @@ export default {
                     "http://localhost:1337/tickets"
                 );
                 if (response && Array.isArray(response.data.data)) {
-                    this.tickets = [...this.tickets, ...response.data.data]; // Use spread operator to merge the arrays
+                    this.tickets = [...this.tickets, ...response.data.data]; 
                 } else {
                     console.error(
                         "Response data is not an array or is empty:",
@@ -164,6 +168,8 @@ export default {
                     console.log("Response Data:", error.response.data);
                 }
             }
+            console.log(this.tickets);
+
         },
     },
     components: {
@@ -172,3 +178,10 @@ export default {
     },
 };
 </script>
+
+<style>
+h2 {
+    margin-left: 10px;
+}
+
+</style>

@@ -1,14 +1,21 @@
 <template>
     <div v-for="(item, index) in data" :key="index" class="Ticket-item">
         <div class="train-number">
-            <strong>Tågnummer:</strong> {{ item.trainnumber }}
+            {{ item.trainnumber }}
         </div>
         <div v-if="item.activityId"></div>
         <div><strong>Orsakskod:</strong> {{ item.code }}</div>
+        <div> 
+            {{ getLevel1Description(item.code) }} :
+            {{ getLevel2Description(item.code) }} :
+            {{ getLevel3Description(item.code) }}</div>
 
-        <div>
-            <button class="edit-button2" @click="openTicketView(item)">
-                Edit Ticket
+        <div class="button-container2">
+            <button class="edit-button" @click="openTicketView(item)">
+                Uppdatera
+            </button>
+            <button @click="deleteItem(item)" class="delete-button">
+                Avsluta ärende
             </button>
         </div>
 
@@ -21,7 +28,7 @@
                 </button>
 
                 <h1 class="modal-title">
-                    Ärende för tågnummer {{ item.trainnumber }}
+                    Ärende för tågnummer {{ this.selectedItem.trainnumber }}
                 </h1>
 
                 <form @submit.prevent="createTicket" class="create-ticket-form">
@@ -105,35 +112,63 @@ export default {
         ReasonCodes,
     },
     methods: {
+        getLevel1Description(code) {
+            const reasonCode = this.reasonCodes.find((rc) => rc.Code === code);
+            return reasonCode ? reasonCode.Level1Description : "N/A"; 
+        },
+
+        getLevel2Description(code) {
+            const reasonCode = this.reasonCodes.find((rc) => rc.Code === code);
+            return reasonCode ? reasonCode.Level2Description : "N/A"; 
+        },
+
+        getLevel3Description(code) {
+            const reasonCode = this.reasonCodes.find((rc) => rc.Code === code);
+            return reasonCode ? reasonCode.Level3Description : "N/A"; 
+        },
+
+
+        async deleteItem(item) {
+            console.log(item.activityId);
+            await this.deleteTicketHelper(item.activityId);
+        },
+
         async deleteTicket(activityId) {
             if (!this.selectedItem) {
-                return;
+            return;
             }
+            await this.deleteTicketHelper(activityId, true);
+        },
 
+        async deleteTicketHelper(activityId, closeView = false) {
+            // Check if the ticket is already locked
             try {
-                const response = await axios.delete(
-                    `http://localhost:1337/tickets/${activityId}`
-                );
+            const response = await axios.delete(`http://localhost:1337/tickets/${activityId}`);
 
-                if (response.status === 200) {
-                    alert("Ticket deleted successfully");
-                    // Reload the list of tickets after deletion
-                    await this.closeTicketView();
+            if (response.status === 200) {
+                alert("Ticket deleted successfully");
+                if (closeView) {
+                await this.closeTicketView();
                 } else {
-                    console.error(
-                        "Unexpected response status:",
-                        response.status
-                    );
-                    console.log("Response Data:", response.data);
+                window.location.reload();
                 }
+            } else {
+                console.error("Unexpected response status:", response.status);
+                console.log("Response Data:", response.data);
+            }
             } catch (error) {
-                console.error("Error deleting ticket:", error);
-                console.log("Response Data:", error.response.data);
+            console.error("Error deleting ticket:", error);
+            console.log("Response Data:", error.response.data);
             }
         },
 
         async updateTicket(activityId) {
             if (!this.selectedItem) {
+                return;
+            }
+
+            if (!this.selectedReason) {
+                alert("Please select a reason code.");
                 return;
             }
 
@@ -173,11 +208,15 @@ export default {
         },
 
         async openTicketView(item) {
+            console.log(item);
             this.selectedItem = item;
-            this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
-            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+            this.selectedItem.trainNumber = item.trainnumber; 
+            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation;
             this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
+            console.log(this.selectedItem.trainnumber);
+
+            console.log(this.selectedItem);
             // Connect to Socket.IO server
             this.socket = io("http://localhost:1337");
 
@@ -205,10 +244,8 @@ export default {
                             if (response.status === 200) {
                                 this.tickets = response.data.data;
                                 this.selectedItem = item;
-                                this.selectedItem.trainNumber =
-                                    item.OperationalTrainNumber; // Set trainNumber
-                                this.selectedItem.trainDate =
-                                    item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+                                this.selectedItem.trainNumber = item.trainnumber; 
+                                this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; 
                                 this.selectedItem.activityId = item.activityId;
                                 this.showTicketView = true;
                             }
@@ -223,23 +260,45 @@ export default {
             );
         },
         closeTicketView() {
+            // Emit the 'closeErrand' event to the server with the ticketId
             this.socket.emit("closeErrand", {
                 ticketId: this.selectedItem.activityId,
             });
-            this.showTicketView = false;
-            // Emit the 'closeErrand' event to the server with the ticketId
-            this.selectedItem = null; // Reset selectedItem
-            this.tickets = []; // Reset tickets
-            this.createdTicket = null; // Reset createdTicket
-            // Emit the 'releaseTicket' event to the server with the activityId
 
-            window.location.reload(); // Refresh the pages
+            this.showTicketView = false;
+            this.selectedItem = null;
+            this.tickets = []; 
+            this.createdTicket = null; 
+
+            window.location.reload(); 
         },
     },
+    mounted() {
+    fetch("http://localhost:1337/codes")
+      .then((response) => response.json())
+      .then((data) => {
+        this.reasonCodes = data.data;
+        if (this.reasonCodes.length > 0) {
+          this.selectedReason = this.reasonCodes[0].Code;
+          this.selectedReason = this.reasonCodes[0].Level1Description;
+          this.selectedReason = this.reasonCodes[0].Level2Description;
+          this.selectedReason = this.reasonCodes[0].Level3Description;
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching reason codes:", error);
+      });
+  },    
 };
 </script>
 
 <style>
+.button-container2 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .modal {
     position: fixed;
     top: 5%;
@@ -250,7 +309,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
+    z-index: 1001;
     border: 1px solid #ccc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
@@ -288,32 +347,34 @@ export default {
 }
 
 select {
-    width: 250px; /* Set a specific width that suits your content */
+    width: 250px; 
 }
-</style>
 
-<style scoped>
 .ticket-item {
-    padding: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
 }
 
 .edit-button,
 .delete-button {
-    background: #3498db;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 5px;
+    display: inline-block;
+  width: calc(50% - 5px); 
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px; 
+  padding: 10px 0; 
+  text-align: center; 
+  box-sizing: border-box; 
+  margin-top: 10px;
 }
 
 .edit-button2 {
     background: #3498db;
     color: #fff;
     border: none;
-    padding: 10px 20px; /* Adjust the padding as needed */
+    padding: 10px 20px; 
     border-radius: 4px;
     cursor: pointer;
     margin-left: 6vh;

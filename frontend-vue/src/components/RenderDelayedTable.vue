@@ -1,26 +1,40 @@
 <template>
     <div class="delayed-trains" ref="delayedTrains" id="delayed-trains">
+      <div
+        v-for="(item, index) in data"
+        :key="index"
+        class="train-item"
+        @click="sendTrainNumber(item.trainnumber)"
+      >
+        <div class="train-number">{{ item.trainnumber }}</div>
         <div
-            v-for="(item, index) in data"
-            :key="index"
-            class="train-item"
-            @click="sendTrainNumber(item.trainnumber)"
+          class="current-station"
+          @click="sendTrainNumber(item.trainnumber)"
         >
-            <div class="train-number">{{ item.trainnumber }}</div>
-            <div
-                class="current-station"
-                @click="sendTrainNumber(item.trainnumber)"
-            >
-                <div>{{ item.LocationSignature }}</div>
-                <div>
-                    {{ item.FromLocation ? item.FromLocation + " -> " : ""
-                    }}{{ item.ToLocation ? item.ToLocation : "" }}
-                </div>
-            </div>
-            <button class="submit-button" @click="openTicketView(item)">
-                Create Ticket
-            </button>
+          <div>{{ item.LocationSignature }}</div>
+          <div>
+            {{ item.FromLocation ? item.FromLocation + " -> " : ""
+            }}{{ item.ToLocation ? item.ToLocation : "" }}
+          </div>
         </div>
+      <!-- Display the "Edit" button if there's a match, otherwise display the "Create Ticket" button -->
+      <button
+        v-if="hasDataticket(item.trainnumber)"
+        type="submit"
+        class="edit-button1"
+        @click="editFunction(item)"
+      >
+        Edit
+      </button>
+      <button
+        v-else
+        type="submit"
+        class="create-button"
+        @click="createFunction(item)"
+      >
+        Create Ticket
+      </button>
+      </div>
     </div>
 
     <div v-if="showTicketView" class="modal-container">
@@ -45,25 +59,37 @@
                 {{ selectedItem.AdvertisedTimeAtLocation }}
             </p>
 
-            <form @submit.prevent="createTicket" class="create-ticket-form">
-                <label for="reason-code" class="reason-code-label"
-                    >Orsakskod</label
-                ><br />
-                <reason-codes
-                    v-model="selectedReason"
-                    :reasonCodes="reasonCodes"
-                ></reason-codes>
-                <div
-                    v-if="!tickets || tickets.length === 0"
-                    class="create-ticket-button"
+            <form @submit.prevent="submitForm" class="create-ticket-form">
+            <label for="reason-code" class="reason-code-label">Orsakskod</label><br />
+            <reason-codes v-model="selectedReason" :reasonCodes="reasonCodes"></reason-codes>
+
+            <!-- Display "Skapa nytt ärende" button when creating a new ticket -->
+            <div class="create-ticket-button">
+                <button
+                v-if="shouldDisplayCreateButton"
+                type="button"
+                class="submit-button"
+                @click="createTicket()"
                 >
-                    <input
-                        type="submit"
-                        value="Skapa nytt ärende"
-                        class="submit-button"
-                    />
-                </div>
+                Skapa nytt ärende
+                </button>
+            </div>
             </form>
+
+            <!-- Edit and Delete buttons -->
+            <div class="selectedItem">
+            <ul v-if="selectedItem">
+                <li v-for="ticket in tickets" :key="ticket._id" class="ticket-item">
+                <strong>Aktuell orsakskod:</strong> {{ ticket.code }}<br /><br />
+                <button @click="updateTicket(ticket.activityId)" class="edit-button">
+                    Uppdatera
+                </button>
+                <button @click="deleteTicket(ticket.activityId)" class="delete-button">
+                    Avsluta ärende
+                </button><br /><br />
+                </li>
+            </ul>
+            </div>
         </div>
     </div>
 </template>
@@ -80,32 +106,30 @@ export default {
             selectedItem: null,
             selectedReason: null,
             reasonCodes: [],
-            tickets: [], // Store ticket data
-            createdTicket: null, // Declare createdTicket
+            tickets: [], 
+            createdTicket: null, 
             socket: null,
+            shouldDisplayCreateButton: false,
         };
-    },
-    computed: {
-        // Compute the default reason code based on ticket.code
-        defaultReasonCode() {
-            console.log(this.selectedItem);
-            if (!this.selectedItem) return "";
-            const matchingReason = this.reasonCodes.find(
-                (reason) => reason.code === this.selectedItem.code
-            );
-            return matchingReason ? matchingReason.code : "";
-        },
     },
     props: {
         data: Array,
+        datatickets: {
+            type: Object,
+            required: true,
+        },
     },
     emits: ["train-number-selected"],
     components: {
         ReasonCodes,
     },
     methods: {
-        logItem() {
-            console.log("Current Item:", this.item);
+        hasDataticket(trainnumber) {
+            const hasMatch = this.datatickets.some((dataticket) => {
+                return dataticket.trainnumber.toString() === trainnumber.toString();
+            });
+
+            return hasMatch;
         },
 
         /* Emit an event to send the train number to the map view */
@@ -113,10 +137,65 @@ export default {
             this.$emit("train-number-selected", trainnumber);
         },
 
+        createFunction(item) {
+            this.shouldDisplayCreateButton = true;
+            this.openTicketView(item);
+        },
+
+        editFunction(item) {
+            this.shouldDisplayCreateButton = false;
+            this.openTicketView(item);
+        },
+
+        async updateTicket(activityId) {
+            if (!this.selectedItem) {
+                return;
+            }
+
+            if (!this.selectedReason) {
+                alert("Please select a reason code.");
+                return;
+            }
+
+            const updatedTicketData = {
+                code: this.selectedReason,
+            };
+
+            try {
+                const response = await axios.put(
+                    `http://localhost:1337/tickets/${activityId}`,
+                    updatedTicketData,
+                    {
+                        validateStatus: function (status) {
+                            console.log("Response Status Code:", status);
+                            return status >= 200 && status < 300;
+                        },
+                    }
+                );
+
+                console.log("Response Data:", response.data);
+                console.log("Response Headers:", response.headers);
+
+                if (response.status === 200) {
+                    alert("Ticket updated successfully");
+                    await this.closeTicketView();
+                } else {
+                    console.error(
+                        "Unexpected response status:",
+                        response.status
+                    );
+                    console.log("Response Data:", response.data);
+                }
+            } catch (error) {
+                console.error("Error updating ticket:", error);
+                console.log("Response Data:", error.response.data);
+            }
+        },
+
         async openTicketView(item) {
             this.selectedItem = item;
-            this.selectedItem.trainNumber = item.OperationalTrainNumber; // Set trainNumber
-            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+            this.selectedItem.trainNumber = item.trainnumber; 
+            this.selectedItem.trainDate = item.AdvertisedTimeAtLocation; 
             this.selectedItem.activityId = item.activityId;
             this.showTicketView = true;
             // Connect to Socket.IO server
@@ -146,10 +225,8 @@ export default {
                             if (response.status === 200) {
                                 this.tickets = response.data.data;
                                 this.selectedItem = item;
-                                this.selectedItem.trainNumber =
-                                    item.OperationalTrainNumber; // Set trainNumber
-                                this.selectedItem.trainDate =
-                                    item.AdvertisedTimeAtLocation; // Set trainDate (update with the correct property)
+                                this.selectedItem.trainNumber = item.trainnumber; 
+                                this.selectedItem.trainDate = item.AdvertisedTimeAtLocation;
                                 this.selectedItem.activityId = item.activityId;
                                 this.showTicketView = true;
                             }
@@ -163,25 +240,28 @@ export default {
                 }
             );
         },
+
         closeTicketView() {
             this.socket.emit("closeErrand", {
                 ticketId: this.selectedItem.activityId,
             });
             this.showTicketView = false;
             // Emit the 'closeErrand' event to the server with the ticketId
-            this.selectedItem = null; // Reset selectedItem
-            this.tickets = []; // Reset tickets
-            this.createdTicket = null; // Reset createdTicket
+            this.selectedItem = null; 
+            this.tickets = []; 
+            this.createdTicket = null; 
             // Emit the 'releaseTicket' event to the server with the activityId
 
             window.location.reload(); // Refresh the pages
         },
+
         outputDelay(item) {
             const advertised = new Date(item.AdvertisedTimeAtLocation);
             const estimated = new Date(item.EstimatedTimeAtLocation);
             const diff = Math.abs(estimated - advertised);
             return Math.floor(diff / (1000 * 60)) + " minuter";
         },
+
         async createTicket() {
             // Check if a reason code is selected
             if (!this.selectedReason) {
@@ -194,13 +274,13 @@ export default {
             const ticketData = {
                 code: this.selectedReason,
                 trainnumber: this.selectedItem.trainnumber,
-                activityId: this.selectedItem.activityId, // Corrected line
+                activityId: this.selectedItem.activityId,
             };
 
-            // Log the ticketData object to the console for debugging
             console.log("ticketData:", ticketData);
 
             try {
+                console.log("post");
                 const response = await axios.post(
                     "http://localhost:1337/tickets",
                     ticketData,
@@ -341,16 +421,52 @@ export default {
     background: #27ae60;
     color: #fff;
     border: none;
-    padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
+    padding: 10px 0;
+    width: 100%;
 }
 
 .submit-button:hover {
     background: #219652;
 }
 
+.edit-button1 {
+  background: #3498db; 
+  color: white; 
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.create-button {
+  background: #27ae60; 
+  color: white; 
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button1:hover {
+  background: #0073e6; 
+}
+
+.create-button:hover {
+  background: #219652; 
+}
+
+.edit-button {
+  background: #3498db;
+}
+
 .selectedItem ul {
     list-style-type: none;
 }
+
+h2 {
+  margin-bottom: 10px; 
+}
+
 </style>
