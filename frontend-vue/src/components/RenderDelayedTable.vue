@@ -124,6 +124,24 @@ export default {
         ReasonCodes,
     },
     methods: {
+        async deleteTicket(activityId = false) {
+            // Check if the ticket is already locked
+            try {
+            const response = await axios.delete(`http://localhost:1337/tickets/${activityId}`);
+
+            if (response.status === 200) {
+                alert("Ticket deleted successfully");
+                await this.closeTicketView();
+            } else {
+                console.error("Unexpected response status:", response.status);
+                console.log("Response Data:", response.data);
+            }
+            } catch (error) {
+            console.error("Error deleting ticket:", error);
+            console.log("Response Data:", error.response.data);
+            }
+        },
+
         hasDataticket(trainnumber) {
             const hasMatch = this.datatickets.some((dataticket) => {
                 return dataticket.trainnumber.toString() === trainnumber.toString();
