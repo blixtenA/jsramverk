@@ -20,63 +20,59 @@
                     {{ item.ToLocation ? item.ToLocation : "" }}
                 </div>
             </div>
-            <!-- Edit and Delete buttons -->
             <button @click="openTicketView(item)">Open Errand</button>
         </div>
     </div>
 
-    <!-- Full-page modal -->
-    <div v-if="showTicketView" class="modal-container">
-        <div class="modal" id="train-modal">
-            <!-- Rest of your template -->
-            <button @click="closeTicketView" id="back">Close Ticket</button>
+  <!-- Full-page modal -->
+  <div v-if="showTicketView" class="modal-container">
+    <div class="modal" id="train-modal">
+      <!-- Rest of your template -->
+      <button @click="closeTicketView" class="close-button">Close Ticket</button>
 
-            <h1>Nytt ärende #{{ selectedItem.activityId }}</h1>
-            <ul v-if="selectedItem">
-                <li v-for="ticket in tickets" :key="ticket._id">
-                    <strong>Id:</strong> {{ ticket._id }}<br />
-                    <strong>Orsakskod:</strong> {{ ticket.code }}<br /><br />
-                    <button @click="updateTicket(ticket.activityId)">
-                        Edit</button
-                    ><br /><br />
-                    <button @click="deleteTicket(selectedItem.activityId)">
-                        Delete
-                    </button>
-                    <br /><br />
-                    <strong>Tågnummer:</strong> {{ ticket.trainnumber
-                    }}<br /><br />
-                    <strong>Tågdatum:</strong> {{ ticket.traindate }}<br />
-                </li>
-            </ul>
-            <h3 v-if="selectedItem && selectedItem.FromLocation">
-                Tåg från {{ selectedItem.FromLocation }} till
-                {{ selectedItem.ToLocation }}. Just nu i
-                {{ selectedItem.LocationSignature }}.
-            </h3>
-            <p v-if="selectedItem">
-                <strong>Försenad:</strong> {{ outputDelay(selectedItem) }}
-            </p>
+      <h1 class="modal-title">Ärende för tågnummer {{ selectedItem.trainnumber }}</h1>
+      <p class="activity-id">Id: #{{ selectedItem.activityId }}</p>
 
-            <p v-if="selectedItem">
-                <strong>Advertised Time:</strong>
-                {{ selectedItem.AdvertisedTimeAtLocation }}
-            </p>
-            <form @submit.prevent="createTicket">
-                <label for="reason-code">Orsakskod</label><br />
-                <reason-codes
-                    v-model="selectedReason"
-                    :reasonCodes="reasonCodes"
-                ></reason-codes>
-                <div
-                    v-if="!tickets || tickets.length === 0"
-                    class="create-ticket-button"
-                >
-                    <br /><br />
-                    <input type="submit" value="Skapa nytt ärende" />
-                </div>
-            </form>
+
+      
+      <h3 v-if="selectedItem && selectedItem.FromLocation">
+        Tåg från {{ selectedItem.FromLocation }} till {{ selectedItem.ToLocation }}. 
+        <br>
+        Just nu i {{ selectedItem.LocationSignature }}.
+      </h3>
+      
+      <p v-if="selectedItem" class="delay-info">
+        <strong>Försenad:</strong> {{ outputDelay(selectedItem) }}
+      </p>
+
+      <p v-if="selectedItem" class="advertised-time">
+        <strong>Advertised Time:</strong> {{ selectedItem.AdvertisedTimeAtLocation }}
+      </p>
+
+      <form @submit.prevent="createTicket" class="create-ticket-form">
+        <label for="reason-code" class="reason-code-label">Orsakskod</label><br />
+        <reason-codes v-model="selectedReason" :reasonCodes="reasonCodes"></reason-codes>
+        
+        <div v-if="!tickets || tickets.length === 0" class="create-ticket-button">
+          <input type="submit" value="Skapa nytt ärende" class="submit-button" />
         </div>
+      </form>
+        
+        <!-- Edit and Delete buttons -->
+        <div class="selectedItem">
+        <ul v-if="selectedItem">
+        <li v-for="ticket in tickets" :key="ticket._id" class="ticket-item">
+          <strong>Aktuell orsakskod:</strong> {{ ticket.code }}<br /><br />
+<!--          <strong>Tågnummer:</strong> {{ ticket.trainnumber }}<br /><br /> -->
+<!--          <strong>Tågdatum:</strong> {{ ticket.traindate }}<br /> -->
+          <button @click="updateTicket(ticket.activityId)" class="edit-button">Uppdatera</button>
+        <button @click="deleteTicket(selectedItem.activityId)" class="delete-button">Avsluta ärende</button><br /><br />
+        </li>
+      </ul>
     </div>
+
+    </div>
+  </div>
 </template>
 
 <script>
@@ -96,6 +92,15 @@ export default {
             socket: null,
         };
     },
+    computed: {
+    // Compute the default reason code based on ticket.code
+    defaultReasonCode() {
+        console.log(this.selectedItem);
+      if (!this.selectedItem) return ""; 
+      const matchingReason = this.reasonCodes.find(reason => reason.code === this.selectedItem.code);
+      return matchingReason ? matchingReason.code : "";
+    },
+  },
     props: {
         data: Array,
     },
@@ -303,38 +308,106 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Align modal to the top */
+  overflow: auto;
+  z-index: 1001; /* Ensure the modal is on top of other content */
+}
+
 .modal {
-    position: fixed;
-    top: 5%;
-    left: 5%;
-    width: 90%;
-    height: 90%;
-    background-color: rgba(255, 255, 255, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-    border: 1px solid #ccc;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+  max-width: 80%;
 }
 
-.modal-content {
-    padding: 20px;
-    max-width: 100%;
-    max-height: 100%;
-    overflow-y: auto;
-    z-index: 10000;
+.close-button {
+  background: #ff5733;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
-/* Close button */
-.modal-content button {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 10px 40px;
+.modal-title {
+  font-size: 24px;
+  margin: 10px 0;
 }
-
-select {
-    width: 250px; /* Set a specific width that suits your content */
-}
-</style>
+  
+  .close-button {
+    background: #ff5733;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .modal-title {
+    font-size: 24px;
+    margin: 10px 0;
+  }
+  
+  .activity-id {
+    font-size: 14px;
+    margin: 5px 0;
+  }
+  
+  .ticket-item {
+    margin-bottom: 10px;
+  }
+  
+  .edit-button, .delete-button {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+  
+  .edit-button:hover, .delete-button:hover {
+    background: #2980b9;
+  }
+  
+  .delay-info, .advertised-time {
+    font-size: 16px;
+    margin: 10px 0;
+  }
+  
+  .create-ticket-form {
+    margin-top: 20px;
+  }
+  
+  .reason-code-label {
+    font-size: 16px;
+  }
+  
+  .submit-button {
+    background: #27ae60;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background: #219652;
+  }
+  </style>
