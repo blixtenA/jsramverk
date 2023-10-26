@@ -1,24 +1,23 @@
 <template>
-    <div>
-        <div class="container">
-            <div class="delayed">
-                <h1>Försenade tåg</h1>
-                <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
-                <render-delayed-table
-                    :data="delayedData"
-                    @train-number-selected="handleTrainNumberSelected"
-                ></render-delayed-table>
-            </div>
-            <div class="map" ref="map"></div>
-        </div>
-        <div class="container2">
+    <h1>Försenade tåg</h1>
+    <div class="container">
+        <div class="delayed">
+            <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
+            <render-delayed-table
+                :data="delayedData"
+                @train-number-selected="handleTrainNumberSelected"
+            ></render-delayed-table>
+
             <div class="tickets">
-                <h1>Tickets</h1>
                 <div class="main-ticket-items" ref="mainTicketsItems">
-                    <render-ticket-table :data="tickets" :delayedData="delayedData"></render-ticket-table>
+                    <render-ticket-table
+                        :data="tickets"
+                        :delayedData="delayedData"
+                    ></render-ticket-table>
                 </div>
             </div>
         </div>
+        <div class="map" ref="map"></div>
     </div>
 </template>
 

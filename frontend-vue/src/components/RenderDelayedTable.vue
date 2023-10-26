@@ -1,5 +1,4 @@
 <template>
-    <h2>Total Delays: {{ data.length }}</h2>
     <div class="delayed-trains" ref="delayedTrains" id="delayed-trains">
         <div
             v-for="(item, index) in data"
@@ -20,59 +19,91 @@
                     {{ item.ToLocation ? item.ToLocation : "" }}
                 </div>
             </div>
-            <button @click="openTicketView(item)">Open Errand</button>
+            <button class="submit-button" @click="openTicketView(item)">
+                Create Ticket
+            </button>
         </div>
     </div>
 
-  <!-- Full-page modal -->
-  <div v-if="showTicketView" class="modal-container">
-    <div class="modal" id="train-modal">
-      <!-- Rest of your template -->
-      <button @click="closeTicketView" class="close-button">Close Ticket</button>
+    <!-- Full-page modal -->
+    <div v-if="showTicketView" class="modal-container">
+        <div class="modal" id="train-modal">
+            <!-- Rest of your template -->
+            <button @click="closeTicketView" class="close-button">
+                Close Ticket
+            </button>
 
-      <h1 class="modal-title">Ärende för tågnummer {{ selectedItem.trainnumber }}</h1>
-      <p class="activity-id">Id: #{{ selectedItem.activityId }}</p>
+            <h1 class="modal-title">
+                Ärende för tågnummer {{ selectedItem.trainnumber }}
+            </h1>
+            <p class="activity-id">Id: #{{ selectedItem.activityId }}</p>
 
+            <h3 v-if="selectedItem && selectedItem.FromLocation">
+                Tåg från {{ selectedItem.FromLocation }} till
+                {{ selectedItem.ToLocation }}.
+                <br />
+                Just nu i {{ selectedItem.LocationSignature }}.
+            </h3>
 
-      
-      <h3 v-if="selectedItem && selectedItem.FromLocation">
-        Tåg från {{ selectedItem.FromLocation }} till {{ selectedItem.ToLocation }}. 
-        <br>
-        Just nu i {{ selectedItem.LocationSignature }}.
-      </h3>
-      
-      <p v-if="selectedItem" class="delay-info">
-        <strong>Försenad:</strong> {{ outputDelay(selectedItem) }}
-      </p>
+            <p v-if="selectedItem" class="delay-info">
+                <strong>Försenad:</strong> {{ outputDelay(selectedItem) }}
+            </p>
 
-      <p v-if="selectedItem" class="advertised-time">
-        <strong>Advertised Time:</strong> {{ selectedItem.AdvertisedTimeAtLocation }}
-      </p>
+            <p v-if="selectedItem" class="advertised-time">
+                <strong>Advertised Time:</strong>
+                {{ selectedItem.AdvertisedTimeAtLocation }}
+            </p>
 
-      <form @submit.prevent="createTicket" class="create-ticket-form">
-        <label for="reason-code" class="reason-code-label">Orsakskod</label><br />
-        <reason-codes v-model="selectedReason" :reasonCodes="reasonCodes"></reason-codes>
-        
-        <div v-if="!tickets || tickets.length === 0" class="create-ticket-button">
-          <input type="submit" value="Skapa nytt ärende" class="submit-button" />
+            <form @submit.prevent="createTicket" class="create-ticket-form">
+                <label for="reason-code" class="reason-code-label"
+                    >Orsakskod</label
+                ><br />
+                <reason-codes
+                    v-model="selectedReason"
+                    :reasonCodes="reasonCodes"
+                ></reason-codes>
+
+                <div
+                    v-if="!tickets || tickets.length === 0"
+                    class="create-ticket-button"
+                >
+                    <input
+                        type="submit"
+                        value="Skapa nytt ärende"
+                        class="submit-button"
+                    />
+                </div>
+            </form>
+
+            <!-- Edit and Delete buttons -->
+            <div class="selectedItem">
+                <ul v-if="selectedItem">
+                    <li
+                        v-for="ticket in tickets"
+                        :key="ticket._id"
+                        class="ticket-item"
+                    >
+                        <strong>Aktuell orsakskod:</strong> {{ ticket.code
+                        }}<br /><br />
+                        <!--          <strong>Tågnummer:</strong> {{ ticket.trainnumber }}<br /><br /> -->
+                        <!--          <strong>Tågdatum:</strong> {{ ticket.traindate }}<br /> -->
+                        <button
+                            @click="updateTicket(ticket.activityId)"
+                            class="edit-button"
+                        >
+                            Uppdatera
+                        </button>
+                        <button
+                            @click="deleteTicket(selectedItem.activityId)"
+                            class="delete-button"
+                        >
+                            Avsluta ärende</button
+                        ><br /><br />
+                    </li>
+                </ul>
+            </div>
         </div>
-      </form>
-        
-        <!-- Edit and Delete buttons -->
-        <div class="selectedItem">
-        <ul v-if="selectedItem">
-        <li v-for="ticket in tickets" :key="ticket._id" class="ticket-item">
-          <strong>Aktuell orsakskod:</strong> {{ ticket.code }}<br /><br />
-<!--          <strong>Tågnummer:</strong> {{ ticket.trainnumber }}<br /><br /> -->
-<!--          <strong>Tågdatum:</strong> {{ ticket.traindate }}<br /> -->
-          <button @click="updateTicket(ticket.activityId)" class="edit-button">Uppdatera</button>
-        <button @click="deleteTicket(selectedItem.activityId)" class="delete-button">Avsluta ärende</button><br /><br />
-        </li>
-      </ul>
     </div>
-
-    </div>
-  </div>
 </template>
 
 <script>
@@ -93,14 +124,16 @@ export default {
         };
     },
     computed: {
-    // Compute the default reason code based on ticket.code
-    defaultReasonCode() {
-        console.log(this.selectedItem);
-      if (!this.selectedItem) return ""; 
-      const matchingReason = this.reasonCodes.find(reason => reason.code === this.selectedItem.code);
-      return matchingReason ? matchingReason.code : "";
+        // Compute the default reason code based on ticket.code
+        defaultReasonCode() {
+            console.log(this.selectedItem);
+            if (!this.selectedItem) return "";
+            const matchingReason = this.reasonCodes.find(
+                (reason) => reason.code === this.selectedItem.code
+            );
+            return matchingReason ? matchingReason.code : "";
+        },
     },
-  },
     props: {
         data: Array,
     },
@@ -310,68 +343,69 @@ export default {
 
 <style scoped>
 .modal-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* Align modal to the top */
-  overflow: auto;
-  z-index: 1001; /* Ensure the modal is on top of other content */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align modal to the top */
+    overflow: auto;
+    z-index: 1001; /* Ensure the modal is on top of other content */
 }
 
 .modal {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
-  max-width: 80%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: 80%;
 }
 
 .close-button {
-  background: #ff5733;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-.modal-title {
-  font-size: 24px;
-  margin: 10px 0;
-}
-  
-  .close-button {
     background: #ff5733;
     color: #fff;
     border: none;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
-  }
-  
-  .modal-title {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.modal-title {
     font-size: 24px;
     margin: 10px 0;
-  }
-  
-  .activity-id {
+}
+
+.close-button {
+    background: #ff5733;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-title {
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.activity-id {
     font-size: 14px;
     margin: 5px 0;
-  }
-  
-  .ticket-item {
+}
+
+.ticket-item {
     margin-bottom: 10px;
-  }
-  
-  .edit-button, .delete-button {
+}
+
+.edit-button,
+.delete-button {
     background: #3498db;
     color: #fff;
     border: none;
@@ -379,35 +413,41 @@ export default {
     border-radius: 4px;
     cursor: pointer;
     margin-right: 5px;
-  }
-  
-  .edit-button:hover, .delete-button:hover {
+}
+
+.edit-button:hover,
+.delete-button:hover {
     background: #2980b9;
-  }
-  
-  .delay-info, .advertised-time {
+}
+
+.delay-info,
+.advertised-time {
     font-size: 16px;
     margin: 10px 0;
-  }
-  
-  .create-ticket-form {
+}
+
+.create-ticket-form {
     margin-top: 20px;
-  }
-  
-  .reason-code-label {
+}
+
+.reason-code-label {
     font-size: 16px;
-  }
-  
-  .submit-button {
+}
+
+.submit-button {
     background: #27ae60;
     color: #fff;
     border: none;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
-  }
-  
-  .submit-button:hover {
+}
+
+.submit-button:hover {
     background: #219652;
-  }
-  </style>
+}
+
+.selectedItem ul {
+    list-style-type: none;
+}
+</style>

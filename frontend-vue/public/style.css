@@ -15,11 +15,11 @@ body {
 
 h1 {
     font-size: 1.8rem;
+    margin-left: 17vh; /* Adjust this value to move the element more to the right */
 }
 
 h2 {
     font-size: 1.6rem;
-    margin-bottom: 1.4rem;
 }
 
 p {
@@ -33,50 +33,48 @@ p {
     display: flex;
 }
 
-.container2 {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-}
-
 /* Styles for the container */
 .delayed {
     height: 100vh;
-    width: 40vw;
     padding: 2rem;
     overflow: scroll;
     background-color: white;
-}
-
-/* Styles for the container */
-.tickets {
-    height: 100vh;
-    width: 40vw;
-    padding: 2rem;
-    overflow: scroll;
-    background-color: white;
+    display: flex;
 }
 
 .map {
     height: 100vh;
-    width: 60vw;
+    width: 60vw; /* Adjusted width to 60% of the viewport width */
     overflow: hidden;
 }
 
-.delayed-trains {
+.delayed-trains,
+.tickets {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    width: 30vh;
 }
 
-.delayed-trains > div {
+/* .main-delayed-trains,
+.main-ticket-items {
+    flex: 1;
+    overflow: auto;
+    width: 30vh;
+} */
+
+.delayed-trains > div,
+.tickets > div {
     display: flex;
     flex-direction: column;
     border-top: 1px solid #ccc;
     padding: 0.2rem 0.8rem;
     cursor: pointer;
+    width: 30vh;
 }
 
-.delayed-trains > div:nth-of-type(2n) {
+.delayed-trains > div:nth-of-type(2n),
+.tickets > div:nth-of-type(2n) {
     background-color: #eee;
 }
 
@@ -147,6 +145,7 @@ p {
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
+
 
 /* Styles for the modal paragraphs (or other text content) */
 .modal p {
