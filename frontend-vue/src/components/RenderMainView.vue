@@ -70,6 +70,7 @@ export default {
             );
 
             socket.on("message", (data) => {
+                console.log("Received data from socket:", data);
                 const trainnumber = data.trainnumber;
 
                 /* Update markers and data for the selected train number */
