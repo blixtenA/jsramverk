@@ -1,29 +1,26 @@
 <template>
     <h1>Train controller</h1>
     <div class="container">
-            <div class="delay-list">
-                <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
-                <h2>Försenade tåg</h2>
-                <render-delayed-table
-                    :data="delayedData"
-                    :datatickets="tickets"
-                    @train-number-selected="handleTrainNumberSelected"
-                ></render-delayed-table>
-            </div>
-
-            <div class="tickets">
-                <h2>Aktiva ärenden</h2>
-                <div class="main-ticket-items" ref="mainTicketsItems">
-
-                    <render-ticket-table
-                        :data="tickets"
-                        :delayedData="delayedData"
-                    ></render-ticket-table>
-                </div>
-            </div>
-        <div class="map" ref="map"></div>
+      <div class="delay-list">
+        <div class="main-delayed-trains" ref="mainDelayedTrains"></div>
+        <h2>Försenade tåg</h2>
+        <render-delayed-table
+          :data="delayedData"
+          :datatickets="tickets"
+          @train-number-selected="handleTrainNumberSelected"
+        ></render-delayed-table>
+      </div>
+  
+      <div class="tickets">
+        <h2>Aktiva ärenden</h2>
+        <div class="main-ticket-items" ref="mainTicketsItems">
+          <render-ticket-table :data="tickets" :delayedData="delayedData"></render-ticket-table>
+        </div>
+      </div>
+  
+      <div class="map" ref="map"></div>
     </div>
-</template>
+  </template>
 
 <script>
 import "leaflet/dist/leaflet.css";
@@ -180,6 +177,21 @@ export default {
 <style>
 h2 {
     margin-left: 10px;
+}
+
+</style>
+
+<style scoped>
+.container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.delay-list,
+.tickets {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 </style>
