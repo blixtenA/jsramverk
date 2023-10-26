@@ -28,12 +28,8 @@ async function fetchTrainPositions(io) {
             const translatedName = stationsObject[signature];
 
             if (translatedName) {
-                // console.log(`Translating signature: ${signature}`);
-                // console.log(`Found station: ${translatedName}`);
                 return translatedName;
             } else {
-                // console.log(`Translating signature: ${signature}`);
-                // console.log("Station not found");
                 return signature;
             }
         }
@@ -41,8 +37,6 @@ async function fetchTrainPositions(io) {
         delayedNumbers.data.forEach((data) => {
             delayedTrainsMap.set(data.OperationalTrainNumber, data);
         });
-
-        //        console.log(delayedNumbers.data.slice(0, 5));
 
         const filters = delayedNumbers.data.map(
             (data) =>
@@ -108,13 +102,6 @@ async function fetchTrainPositions(io) {
                             const delayedData =
                                 delayedTrainsMap.get(trainNumber);
 
-                            // console.log("delayedData structure:", delayedData);
-                            // console.log("FromLocation:", delayedData.FromLocation);
-                            // console.log("ToLocation:", delayedData.ToLocation);
-                            // console.log("signature:", delayedData.LocationSignature);
-                            // console.log("FromLocation[0].LocationName:", delayedData.FromLocation[0].LocationName);
-                            // console.log("ToLocation[0].LocationName:", delayedData.ToLocation[0].LocationName);
-
                             const trainObject = {
                                 activityId: delayedData.ActivityId,
                                 trainnumber: trainNumber,
@@ -123,19 +110,15 @@ async function fetchTrainPositions(io) {
                                 bearing: changedPosition.Bearing,
                                 status: !changedPosition.Deleted,
                                 speed: changedPosition.Speed,
-                                FromLocation: translateStationSignature(
-                                    delayedData.FromLocation[0].LocationName
-                                ),
-                                ToLocation: translateStationSignature(
-                                    delayedData.ToLocation[0].LocationName
-                                ),
+                                FromLocation: delayedData.FromLocation
+                                ? translateStationSignature(delayedData.FromLocation[0].LocationName)
+                                : "N/A", 
+                            ToLocation: delayedData.ToLocation
+                                ? translateStationSignature(delayedData.ToLocation[0].LocationName)
+                                : "N/A", 
                                 LocationSignature: translateStationSignature(
                                     delayedData.LocationSignature
                                 ),
-                                //                                FromLocation: delayedData.FromLocation,
-                                //                                ToLocation: delayedData.ToLocation,
-                                //                                LocationSignature:
-                                //                                    delayedData.LocationSignature,
                                 AdvertisedTimeAtLocation:
                                     delayedData.AdvertisedTimeAtLocation,
                                 EstimatedTimeAtLocation:
