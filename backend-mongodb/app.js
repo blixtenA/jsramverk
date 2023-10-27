@@ -51,7 +51,7 @@ const io = require("socket.io")(httpServer, {
     },
 });
 
-const port = process.env.PORT || 1337;
+const port = process.env.PORT || 8081;
 
 app.get("/", (req, res) => {
     res.json({
