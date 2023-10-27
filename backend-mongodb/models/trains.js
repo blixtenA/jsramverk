@@ -56,7 +56,7 @@ async function fetchTrainPositions(io) {
 </REQUEST>`;
 
         const trainPositions = {};
-        console.log("TRAFIKVERKET_API_KEY:", process.env.TRAFIKVERKET_API_KEY);
+
         const response = await fetch(
             "https://api.trafikinfo.trafikverket.se/v2/data.json",
             {
