@@ -37,9 +37,6 @@ jobs:
             - name: Load environment variables from .env
               run: source backend-mongodb/.env
 
-            - name: Echo loaded environment variable
-              run: echo $TRAFIKVERKET_API_KEY
-
             - name: Run backend tests
               working-directory: backend-mongodb
               run: npm test
