@@ -34,16 +34,15 @@ describe("Server Connection Behavior", () => {
         }
     });
 
-    this.timeout(10000);
-    // This is just an example test. Replace it with your actual test cases.
-    it("should return a 200 status code when connecting to the server", (done) => {
-        chai.request(app)
-            .get("/")
-            .end((err, res) => {
-                expect(res).to.have.status(200);
-                done();
-            });
-    });
+    // // This is just an example test. Replace it with your actual test cases.
+    // it("should return a 200 status code when connecting to the server", (done) => {
+    //     chai.request(app)
+    //         .get("/")
+    //         .end((err, res) => {
+    //             expect(res).to.have.status(200);
+    //             done();
+    //         });
+    // });
 
     // Test Case 3: Test a GET request to an endpoint from the "delayed" route
     it("should handle a GET request and return a 200 status code for an endpoint from the 'delayed' route", (done) => {
