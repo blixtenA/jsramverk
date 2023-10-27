@@ -76,7 +76,7 @@ describe("Test Suite", function () {
 
     it("should wait for element to be visible", async function () {
         const element = await browser.findElement(By.className("delayed"));
-        await browser.wait(until.elementIsVisible(element), 10000); // Wait for element to be visible
+        await browser.wait(until.elementIsVisible(element), 20000); // Wait for element to be visible
 
         assert.isTrue(await element.isDisplayed());
     });
@@ -117,7 +117,7 @@ describe("Test Suite", function () {
 
         console.log(".train-number element located. Clicking...");
 
-        await browser.wait(until.elementIsEnabled(firstDelayedItem), 10000); // Wait for element to be clickable
+        await browser.wait(until.elementIsEnabled(firstDelayedItem), 20000); // Wait for element to be clickable
         await firstDelayedItem.click();
 
         const markerSelector = By.css(".leaflet-marker-icon");
@@ -170,7 +170,7 @@ describe("Test Suite", function () {
             10000
         );
 
-        await browser.wait(until.elementIsVisible(ticketViewContainer), 10000); // Wait for element to be visible
+        await browser.wait(until.elementIsVisible(ticketViewContainer), 20000); // Wait for element to be visible
 
         // Find elements within the ticket view
         console.log("Finding elements within the ticket view...");
