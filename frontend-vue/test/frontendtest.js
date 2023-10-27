@@ -31,9 +31,9 @@ const browser = new Builder()
 
 console.log("WebDriver instance created");
 
-
 //const targetURL = "https://www.student.bth.se/~anbx22/editor/#/";
-const targetURL = "http://localhost:8080";
+// const targetURL = "http://localhost:8080";
+const targetURL = "https://www.student.bth.se/~adde22/editor/#/";
 
 describe("Test Suite", function () {
     function goToNavLink(target) {
@@ -83,7 +83,11 @@ describe("Test Suite", function () {
 
     it("Test index", function (done) {
         browser.getTitle().then(function (title) {
-            assert.equal(title, "Train controller", "Page title should match 'Train controller'");
+            assert.equal(
+                title,
+                "Train controller",
+                "Page title should match 'Train controller'"
+            );
         });
 
         assertH1("Home");
@@ -105,14 +109,14 @@ describe("Test Suite", function () {
     it("should count the number of markers = 1 after clicking and assert same train nr", async function () {
         // Simulate clicking the first delay (should be at least one, because Sweden)
         console.log("Locating .train-number element...");
-        
+
         const firstDelayedItem = await browser.wait(
             until.elementLocated(By.css(".train-number")),
             10000
         );
-        
+
         console.log(".train-number element located. Clicking...");
-        
+
         await browser.wait(until.elementIsEnabled(firstDelayedItem), 10000); // Wait for element to be clickable
         await firstDelayedItem.click();
 
@@ -120,20 +124,29 @@ describe("Test Suite", function () {
         const markerElements = await browser.findElements(markerSelector);
         const markerCount = markerElements.length;
 
-        assert.equal(markerCount, 1, 'Expected 1 marker after the click');
+        assert.equal(markerCount, 1, "Expected 1 marker after the click");
         console.log(`Number of markers on the map after click: ${markerCount}`);
 
         // Get the train number from the clicked item
         const clickedItemTrainNumber = await firstDelayedItem.getText();
 
-        const leafletMarker = await browser.findElement(By.css(".leaflet-marker-icon"));
+        const leafletMarker = await browser.findElement(
+            By.css(".leaflet-marker-icon")
+        );
 
         // Extract the train number from the Leaflet
-        const trainNumberFromMarker = await browser.executeScript(function (marker) {
+        const trainNumberFromMarker = await browser.executeScript(function (
+            marker
+        ) {
             return marker.dataset.trainnumber || null;
-        }, leafletMarker);
+        },
+        leafletMarker);
 
-        assert.equal(clickedItemTrainNumber, trainNumberFromMarker, 'Train numbers should match');
+        assert.equal(
+            clickedItemTrainNumber,
+            trainNumberFromMarker,
+            "Train numbers should match"
+        );
     });
 
     it("should open the ticket view when clicking a delayed item", async function () {
@@ -144,8 +157,10 @@ describe("Test Suite", function () {
             10000
         );
 
-        /* Swap the modal to a button from a post in the list */ 
-        const openErrandButton = await browser.findElement(By.xpath('//button[text()="Open Errand"]'));
+        /* Swap the modal to a button from a post in the list */
+        const openErrandButton = await browser.findElement(
+            By.xpath('//button[text()="Open Errand"]')
+        );
         await openErrandButton.click();
 
         // Wait for the ticket view container to be visible
@@ -175,19 +190,24 @@ describe("Test Suite", function () {
     });
 
     it("Map element displays and markers are filtered when clicking a marker on the map", async function () {
-        await browser.sleep(5000); 
+        await browser.sleep(5000);
 
         /* Check that we have a map */
-        const mapSelector = By.css('.map');
+        const mapSelector = By.css(".map");
         const mapElement = await browser.findElement(mapSelector);
-        assert.isTrue(await mapElement.isDisplayed(), 'Map element should be displayed');
+        assert.isTrue(
+            await mapElement.isDisplayed(),
+            "Map element should be displayed"
+        );
 
         /* Get marker data-trainnumber */
         const markerDataTrainNumbers = await browser.executeScript(function () {
-            const markers = document.querySelectorAll('.leaflet-marker-icon[data-trainnumber]');
+            const markers = document.querySelectorAll(
+                ".leaflet-marker-icon[data-trainnumber]"
+            );
             const trainNumbers = [];
             markers.forEach(function (marker) {
-                trainNumbers.push(marker.getAttribute('data-trainnumber'));
+                trainNumbers.push(marker.getAttribute("data-trainnumber"));
             });
             return trainNumbers;
         });
@@ -195,7 +215,9 @@ describe("Test Suite", function () {
         /* Simulate clicking the first marker */
         const markerIndex = 0;
         await browser.executeScript(function (index) {
-            const markers = document.querySelectorAll('.leaflet-marker-icon[data-trainnumber]');
+            const markers = document.querySelectorAll(
+                ".leaflet-marker-icon[data-trainnumber]"
+            );
             markers[index].click();
         }, markerIndex);
 
@@ -203,16 +225,26 @@ describe("Test Suite", function () {
 
         /* Get marker data-trainnumber after click */
         const markerDataAfter = await browser.executeScript(function () {
-            const markers = document.querySelectorAll('.leaflet-marker-icon[data-trainnumber]');
+            const markers = document.querySelectorAll(
+                ".leaflet-marker-icon[data-trainnumber]"
+            );
             const trainNumbers = [];
             markers.forEach(function (marker) {
-                trainNumbers.push(marker.getAttribute('data-trainnumber'));
+                trainNumbers.push(marker.getAttribute("data-trainnumber"));
             });
             return trainNumbers;
         });
 
-        assert.equal(markerDataAfter.length, 1, 'Expected 1 marker after the click');
-        assert.equal(markerDataAfter[0], markerDataTrainNumbers[markerIndex], 'Clicked marker trainNumber should match');
+        assert.equal(
+            markerDataAfter.length,
+            1,
+            "Expected 1 marker after the click"
+        );
+        assert.equal(
+            markerDataAfter[0],
+            markerDataTrainNumbers[markerIndex],
+            "Clicked marker trainNumber should match"
+        );
     });
 
     after(async function () {
