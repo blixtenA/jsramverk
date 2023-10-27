@@ -6,11 +6,13 @@ const delayedTrainsMap = new Map();
 
 async function fetchTrainPositions(io) {
     try {
-        const delayedNumbersURL = "http://localhost:1337/delayed";
+        const delayedNumbersURL =
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net//delayed";
         const delayedNumbersResponse = await fetch(delayedNumbersURL);
         const delayedNumbers = await delayedNumbersResponse.json();
 
-        const stationsURL = "http://localhost:1337/stations";
+        const stationsURL =
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net//stations";
         const stationsResponse = await fetch(stationsURL);
         const stations = await stationsResponse.json();
 
@@ -111,11 +113,16 @@ async function fetchTrainPositions(io) {
                                 status: !changedPosition.Deleted,
                                 speed: changedPosition.Speed,
                                 FromLocation: delayedData.FromLocation
-                                ? translateStationSignature(delayedData.FromLocation[0].LocationName)
-                                : "N/A", 
-                            ToLocation: delayedData.ToLocation
-                                ? translateStationSignature(delayedData.ToLocation[0].LocationName)
-                                : "N/A", 
+                                    ? translateStationSignature(
+                                          delayedData.FromLocation[0]
+                                              .LocationName
+                                      )
+                                    : "N/A",
+                                ToLocation: delayedData.ToLocation
+                                    ? translateStationSignature(
+                                          delayedData.ToLocation[0].LocationName
+                                      )
+                                    : "N/A",
                                 LocationSignature: translateStationSignature(
                                     delayedData.LocationSignature
                                 ),
