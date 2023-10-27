@@ -14,24 +14,27 @@ function renderMainView() {
 
     const socket = io("http://localhost:1337");
 
-    const map = L.map('map').setView([62.173276, 14.942265], 5);
+    const map = L.map("map").setView([62.173276, 14.942265], 5);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution:
+            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     let markers = {};
 
     socket.on("message", (data) => {
         if (markers.hasOwnProperty(data.trainnumber)) {
-            let marker = markers[data.trainnumber]
+            let marker = markers[data.trainnumber];
 
             marker.setLatLng(data.position);
         } else {
-            let marker = L.marker(data.position).bindPopup(data.trainnumber).addTo(map);
+            let marker = L.marker(data.position)
+                .bindPopup(data.trainnumber)
+                .addTo(map);
 
-            markers[data.trainnumber] = marker
+            markers[data.trainnumber] = marker;
         }
     });
 
@@ -39,7 +42,7 @@ function renderMainView() {
 
     fetch("http://localhost:1337/delayed")
         .then((response) => response.json())
-        .then(function(result) {
+        .then(function (result) {
             return renderDelayedTable(result.data, delayed);
         });
 }
@@ -54,13 +57,19 @@ function renderDelayedTable(data, table) {
             </div>
             <div class="current-station">
                 <div>${item.LocationSignature}</div>
-                <div>${item.FromLocation ? item.FromLocation[0].LocationName + " -> " : ""} ${item.ToLocation ? item.ToLocation[0].LocationName : ""}</div>
+                <div>${
+                    item.FromLocation
+                        ? item.FromLocation[0].LocationName + " -> "
+                        : ""
+                } ${
+            item.ToLocation ? item.ToLocation[0].LocationName : ""
+        }</div>
             </div>
             <div class="delay">
                 ${outputDelay(item)}
             </div>`;
 
-        element.addEventListener("click", function() {
+        element.addEventListener("click", function () {
             renderTicketView(item);
         });
 
@@ -87,7 +96,7 @@ function renderTicketView(item) {
 
     var locationString = "";
     if (item.FromLocation) {
-         locationString = `<h3>Tåg från ${item.FromLocation[0].LocationName} till ${item.ToLocation[0].LocationName}. Just nu i ${item.LocationSignature}.</h3>`;
+        locationString = `<h3>Tåg från ${item.FromLocation[0].LocationName} till ${item.ToLocation[0].LocationName}. Just nu i ${item.LocationSignature}.</h3>`;
     }
 
     container.innerHTML = `<div class="ticket-container">
@@ -108,19 +117,18 @@ function renderTicketView(item) {
             </div>
         </div>`;
 
-
     let backButton = document.getElementById("back");
     let reasonCodeSelect = document.getElementById("reason-code");
     let newTicketForm = document.getElementById("new-ticket-form");
     let oldTickets = document.getElementById("old-tickets");
 
-    backButton.addEventListener("click", function(event) {
+    backButton.addEventListener("click", function (event) {
         event.preventDefault();
 
         renderMainView();
     });
 
-    newTicketForm.addEventListener("submit", function(event) {
+    newTicketForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
         var newTicket = {
@@ -132,9 +140,9 @@ function renderTicketView(item) {
         fetch("http://localhost:1337/tickets", {
             body: JSON.stringify(newTicket),
             headers: {
-              'content-type': 'application/json'
+                "content-type": "application/json",
             },
-            method: 'POST'
+            method: "POST",
         })
             .then((response) => response.json())
             .then((result) => {
@@ -174,8 +182,6 @@ function renderTicketView(item) {
                 reasonCodeSelect.appendChild(element);
             });
         });
-
-
 }
 
 renderMainView();

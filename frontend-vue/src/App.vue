@@ -12,7 +12,6 @@ export default {
   },
   mounted() {
     console.log("App.vue mounted");
-    console.log("Element with id 'app' exists:", document.getElementById("app"));
   },
 };
 </script>
