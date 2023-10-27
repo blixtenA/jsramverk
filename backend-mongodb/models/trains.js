@@ -7,12 +7,12 @@ const delayedTrainsMap = new Map();
 async function fetchTrainPositions(io) {
     try {
         const delayedNumbersURL =
-            "https://jsramverk-train-adde22anbx22.azurewebsites.net//delayed";
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/delayed";
         const delayedNumbersResponse = await fetch(delayedNumbersURL);
         const delayedNumbers = await delayedNumbersResponse.json();
 
         const stationsURL =
-            "https://jsramverk-train-adde22anbx22.azurewebsites.net//stations";
+            "https://jsramverk-train-adde22anbx22.azurewebsites.net/stations";
         const stationsResponse = await fetch(stationsURL);
         const stations = await stationsResponse.json();
 
