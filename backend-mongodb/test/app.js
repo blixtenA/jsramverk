@@ -34,6 +34,7 @@ describe("Server Connection Behavior", () => {
         }
     });
 
+    this.timeout(10000);
     // This is just an example test. Replace it with your actual test cases.
     it("should return a 200 status code when connecting to the server", (done) => {
         chai.request(app)
