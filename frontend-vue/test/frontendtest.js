@@ -32,8 +32,8 @@ const browser = new Builder()
 console.log("WebDriver instance created");
 
 //const targetURL = "https://www.student.bth.se/~anbx22/editor/#/";
- const targetURL = "http://localhost:8080";
-//const targetURL = "https://www.student.bth.se/~adde22/editor/#/";
+// const targetURL = "http://localhost:8080";
+const targetURL = "https://www.student.bth.se/~adde22/editor/#/";
 
 describe("Test Suite", function () {
     function goToNavLink(target) {
