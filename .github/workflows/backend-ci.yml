@@ -33,9 +33,9 @@ jobs:
               working-directory: backend-mongodb # Specify the backend directory
               run: npm install
 
+            - name: Debug Environment Variable
+              run: echo "TRAFIKVERKET_API_KEY=$TRAFIKVERKET_API_KEY"
+
             - name: Run backend tests
               working-directory: backend-mongodb # Specify the backend directory
               run: npm test
-
-            - name: Debug Environment Variable
-              run: echo "TRAFIKVERKET_API_KEY=$TRAFIKVERKET_API_KEY"
