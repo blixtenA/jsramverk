@@ -11,6 +11,7 @@ jobs:
 
         env:
             NODE_OPTIONS: "--max-old-space-size=4096" # Increase Node.js memory limit
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
@@ -30,12 +31,15 @@ jobs:
               run: sudo service mongod start
 
             - name: Install backend dependencies
-              working-directory: backend-mongodb # Specify the backend directory
+              working-directory: backend-mongodb
               run: npm install
 
-            - name: Debug Environment Variable
-              run: echo "TRAFIKVERKET_API_KEY=$TRAFIKVERKET_API_KEY"
+            - name: Load environment variables from .env
+              run: source backend-mongodb/.env
+
+            - name: Echo loaded environment variable
+              run: echo $TRAFIKVERKET_API_KEY
 
             - name: Run backend tests
-              working-directory: backend-mongodb # Specify the backend directory
+              working-directory: backend-mongodb
               run: npm test
