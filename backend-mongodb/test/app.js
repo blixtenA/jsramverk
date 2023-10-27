@@ -18,12 +18,10 @@ describe("Server Connection Behavior", () => {
 
     // Before running the tests, start the server on the selected port
     before((done) => {
-        setTimeout(() => {
-            server = app.listen(testPort, () => {
-                console.log(`Test server is running on port ${testPort}`);
-                done();
-            });
-        }, 5000); // Delay of 5000 milliseconds (5 seconds)
+        server = app.listen(testPort, () => {
+            console.log(`Test server is running on port ${testPort}`);
+            done();
+        });
     });
 
     // After running the tests, close the server to release the port
