@@ -32,8 +32,8 @@ const browser = new Builder()
 console.log("WebDriver instance created");
 
 //const targetURL = "https://www.student.bth.se/~anbx22/editor/#/";
-// const targetURL = "http://localhost:8080";
-const targetURL = "https://www.student.bth.se/~adde22/editor/#/";
+ const targetURL = "http://localhost:8080";
+//const targetURL = "https://www.student.bth.se/~adde22/editor/#/";
 
 describe("Test Suite", function () {
     function goToNavLink(target) {
@@ -75,7 +75,7 @@ describe("Test Suite", function () {
     });
 
     it("should wait for element to be visible", async function () {
-        const element = await browser.findElement(By.className("delayed"));
+        const element = await browser.findElement(By.className("delayed-trains"));
         await browser.wait(until.elementIsVisible(element), 20000); // Wait for element to be visible
 
         assert.isTrue(await element.isDisplayed());
@@ -111,7 +111,7 @@ describe("Test Suite", function () {
         console.log("Locating .train-number element...");
 
         const firstDelayedItem = await browser.wait(
-            until.elementLocated(By.css(".train-number")),
+            until.elementLocated(By.css(".train-item:first-child .train-number")),
             10000
         );
 
@@ -153,13 +153,13 @@ describe("Test Suite", function () {
         // Simulate clicking the first delay (should be at least one, because Sweden)
         console.log("Locating .train-number element...");
         const firstDelayedItem = await browser.wait(
-            until.elementLocated(By.css(".train-number")),
+            until.elementLocated(By.css(".train-item:first-child .train-number")),
             10000
         );
 
         /* Swap the modal to a button from a post in the list */
         const openErrandButton = await browser.findElement(
-            By.xpath('//button[text()="Open Errand"]')
+            By.xpath('//button[@class="edit-button1" or @class="create-button"]')
         );
         await openErrandButton.click();
 
